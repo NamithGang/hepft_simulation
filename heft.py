@@ -48,33 +48,32 @@ def calc_hepft(dag: TaskDAG, network: NetworkGraph, dynamic_net: DynamicNetwork)
 
     for task_id in sorted_tasks:
         task = dag.nodes[task_id]
-        best_proc, best_est, best_eft = None, 0, float('inf')
-        processors = network.processor_list()
-        
-        for proc_id in processors:
-            # inital list of processors, may need to account for available processors dynamicaly
-            est = proc_available_time.get(proc_id, 0.0)
-            predicted_network = dynamic_net.pred_net_func(est)
-            processors = predicted_network.processor_list()
+        best_proc, best_est, best_eft = None, 0.0, float('inf')
+
+        # Always consider ALL processors
+        for proc_id in network.processors:
+            base_est = proc_available_time.get(proc_id, 0.0)
+            est = base_est
 
             for parent_id in task.parents:
                 parent_proc, _, parent_finish = schedule[parent_id]
 
-                transfer_time = max(parent_finish, est) # either the task starts once processor opens
-                                                        # its queue or once parent finishes its task
+                transfer_time = max(parent_finish, est)
                 future_network = dynamic_net.pred_net_func(transfer_time)
 
-                data_size = dag.edges[(parent_id, task_id)] # how much data the parent task is sending to current
-                comm = future_network.comm_cost(parent_proc, proc_id, data_size, fallback_bandwidth=network.bandwidth)
+                data_size = dag.edges[(parent_id, task_id)]
+                comm = future_network.comm_cost(
+                    parent_proc,
+                    proc_id,
+                    data_size,
+                    fallback_bandwidth=network.bandwidth
+                )
+
                 est = max(est, parent_finish + comm)
 
-            # Check AFTER computing the actual start time
+            # Check processor availability at actual start time
             net_at_start = dynamic_net.pred_net_func(est)
             if not net_at_start.has_processor(proc_id):
-                continue
-
-            # in case task was not assigned to processor
-            if est == float('inf'):
                 continue
 
             eft = est + task.comp_costs[proc_id]
@@ -84,7 +83,7 @@ def calc_hepft(dag: TaskDAG, network: NetworkGraph, dynamic_net: DynamicNetwork)
                 best_est = est
                 best_proc = proc_id
 
-        # After the processor loop, add a fallback to the base network
+        # Fallback (unchanged, but now rarely triggered)
         if best_proc is None:
             for proc_id in network.processors:
                 est = proc_available_time.get(proc_id, 0.0)
@@ -93,14 +92,43 @@ def calc_hepft(dag: TaskDAG, network: NetworkGraph, dynamic_net: DynamicNetwork)
                     data_size = dag.edges[(parent_id, task_id)]
                     comm = network.comm_cost(parent_proc, proc_id, data_size)
                     est = max(est, parent_finish + comm)
+
                 eft = est + task.comp_costs[proc_id]
+
                 if eft < best_eft:
-                    best_eft, best_est, best_proc = eft, est, proc_id    
+                    best_eft, best_est, best_proc = eft, est, proc_id
 
         schedule[task_id] = (best_proc, best_est, best_eft)
         proc_available_time[best_proc] = best_eft
 
     return schedule
+
+def simulate_on_dynamic(dag, dynamic_net, schedule):
+    # schedule task_id: processor, start_time, finish_time
+    ordered = sorted(schedule.items(), key=lambda item: item[1][1]) # sorted by start time
+
+    actual = {} # task_id: processor, start_time, finish_time
+    proc_available = {pid: 0.0 for pid in dynamic_net.pred_net_func(0.0).processors}
+
+    for task_id, (proc_id, start_time, finish_time) in ordered:
+        ready_time = proc_available.get(proc_id, 0.0)
+
+        for parent_id in dag.nodes[task_id].parents:
+            parent_proc, _, parent_finish = actual[parent_id]
+            net_at_t = dynamic_net.pred_net_func(parent_finish)  # checking state of network at the end of each task completion
+            data_size = dag.edges[(parent_id, task_id)] # how much data the parent task is sending
+            comm = net_at_t.comm_cost(
+                parent_proc, proc_id, data_size,
+                fallback_bandwidth=dynamic_net.base_network.bandwidth
+            )
+            ready_time = max(ready_time, parent_finish + comm) # when task actually starts
+
+        start = ready_time
+        finish = start + dag.nodes[task_id].comp_costs[proc_id]
+        actual[task_id] = (proc_id, start, finish)
+        proc_available[proc_id] = finish
+
+    return actual
 
 def main():
     dag     = create_dag()
@@ -109,16 +137,45 @@ def main():
 
     # static HEFT
     static_schedule = calc_heft(dag, network)
-    print("=== HEFT (static) ===")
+    print("=== HEFT (planned) ===")
     for task_id, (proc_id, start, finish) in sorted(static_schedule.items()):
         print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
-
     # predictive HEPFT
     dynamic_schedule = calc_hepft(dag, network, dyn)
-    print("\n=== HEPFT (dynamic) ===")
+    print("\n=== HEPFT (planned) ===")
     for task_id, (proc_id, start, finish) in sorted(dynamic_schedule.items()):
         print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
 
+    # static HEFT
+    true_static_schedule = simulate_on_dynamic(dag, dyn, static_schedule)
+    static_start, static_finish = float('inf'), 0
+    print("\n\n=== HEFT (simulated) ===")
+    for task_id, (proc_id, start, finish) in sorted(true_static_schedule.items()):
+        print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
+        if(static_start > start):
+            static_start = start
+        if(static_finish < finish):
+            static_finish = finish
+    time_heft = static_finish - static_start
+    # predictive HEPFT
+    true_dynamic_schedule = simulate_on_dynamic(dag, dyn, dynamic_schedule)
+    dynamic_start, dynamic_finish = float('inf'), 0
+    print("\n=== HEPFT (simulated) ===")
+    for task_id, (proc_id, start, finish) in sorted(true_dynamic_schedule.items()):
+        print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
+        if(dynamic_start > start):
+            dynamic_start = start
+        if(dynamic_finish < finish):
+            dynamic_finish = finish
+    time_hepft = dynamic_finish - dynamic_start
+
+
+    if (time_hepft >= time_heft):
+        dif = time_hepft-time_heft
+        print(f"\nHEFT wins by {dif:.2} ({(dif/time_heft)*100:.2}%)")
+    else:
+        dif = time_heft-time_hepft
+        print(f"\nHEPFT wins by {dif:.2} ({(dif/time_hepft)*100:.2}%)")
 
 if __name__ == "__main__":
     main()
