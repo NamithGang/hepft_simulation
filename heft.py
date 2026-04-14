@@ -131,51 +131,75 @@ def simulate_on_dynamic(dag, dynamic_net, schedule):
     return actual
 
 def main():
-    dag     = create_dag()
-    network = create_network()
-    dyn     = create_dynamic_network(network)
+    from demo import get_test_cases
+    test_cases = get_test_cases()
 
-    # static HEFT
-    static_schedule = calc_heft(dag, network)
-    print("=== HEFT (planned) ===")
-    for task_id, (proc_id, start, finish) in sorted(static_schedule.items()):
-        print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
-    # predictive HEPFT
-    dynamic_schedule = calc_hepft(dag, network, dyn)
-    print("\n=== HEPFT (planned) ===")
-    for task_id, (proc_id, start, finish) in sorted(dynamic_schedule.items()):
-        print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
+    for tc in test_cases:
+        print(f"\n{'='*55}")
+        print(f" {tc['name']}")
+        print(f"{'='*55}")
 
-    # static HEFT
-    true_static_schedule = simulate_on_dynamic(dag, dyn, static_schedule)
-    static_start, static_finish = float('inf'), 0
-    print("\n\n=== HEFT (simulated) ===")
-    for task_id, (proc_id, start, finish) in sorted(true_static_schedule.items()):
-        print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
-        if(static_start > start):
-            static_start = start
-        if(static_finish < finish):
-            static_finish = finish
-    time_heft = static_finish - static_start
-    # predictive HEPFT
-    true_dynamic_schedule = simulate_on_dynamic(dag, dyn, dynamic_schedule)
-    dynamic_start, dynamic_finish = float('inf'), 0
-    print("\n=== HEPFT (simulated) ===")
-    for task_id, (proc_id, start, finish) in sorted(true_dynamic_schedule.items()):
-        print(f"  Task {task_id} P{proc_id} | Start: {start:.2f} Finish: {finish:.2f}")
-        if(dynamic_start > start):
-            dynamic_start = start
-        if(dynamic_finish < finish):
-            dynamic_finish = finish
-    time_hepft = dynamic_finish - dynamic_start
+        dag     = tc['dag']
+        network = tc['network']
+        dyn     = tc['dynamic_network']
 
+        # planned schedules
+        static_schedule  = calc_heft(dag, network)
+        dynamic_schedule = calc_hepft(dag, network, dyn)
 
-    if (time_hepft >= time_heft):
-        dif = time_hepft-time_heft
-        print(f"\nHEFT wins by {dif:.2} ({(dif/time_heft)*100:.2}%)")
-    else:
-        dif = time_heft-time_hepft
-        print(f"\nHEPFT wins by {dif:.2} ({(dif/time_hepft)*100:.2}%)")
+        # planned HEFT
+        static_start, static_finish = float('inf'), 0
+        print("\n=== HEFT (planned) ===")
+        for task_id, (proc_id, start, finish) in sorted(static_schedule.items()):
+            if static_start > start:
+                static_start = start
+            if static_finish < finish:
+                static_finish = finish
+        planned_time_heft = static_finish - static_start
+        print(f"\t Expected HEFT execution time: {planned_time_heft:.2f}")
+
+        # planned HEPFT
+        dynamic_start, dynamic_finish = float('inf'), 0
+        print("\n=== HEPFT (planned) ===")
+        for task_id, (proc_id, start, finish) in sorted(dynamic_schedule.items()):
+            if dynamic_start > start:
+                dynamic_start = start
+            if dynamic_finish < finish:
+                dynamic_finish = finish
+        planned_time_hepft = dynamic_finish - dynamic_start
+        print(f"\t Expected HEPFT execution time: {planned_time_hepft:.2f}")
+
+        # simulated HEFT
+        true_static_schedule = simulate_on_dynamic(dag, dyn, static_schedule)
+        static_start, static_finish = float('inf'), 0
+        print("\n=== HEFT (simulated) ===")
+        for task_id, (proc_id, start, finish) in sorted(true_static_schedule.items()):
+            if static_start > start:
+                static_start = start
+            if static_finish < finish:
+                static_finish = finish
+        time_heft = static_finish - static_start
+        print(f"\t Simulated HEFT execution time: {time_heft:.2f}")
+
+        # simulated HEPFT
+        true_dynamic_schedule = simulate_on_dynamic(dag, dyn, dynamic_schedule)
+        dynamic_start, dynamic_finish = float('inf'), 0
+        print("\n=== HEPFT (simulated) ===")
+        for task_id, (proc_id, start, finish) in sorted(true_dynamic_schedule.items()):
+            if dynamic_start > start:
+                dynamic_start = start
+            if dynamic_finish < finish:
+                dynamic_finish = finish
+        time_hepft = dynamic_finish - dynamic_start
+        print(f"\t Simulated HEPFT execution time: {time_hepft:.2f}")
+
+        # winner
+        if time_hepft > time_heft:
+            dif = time_hepft - time_heft
+            print(f"\nHEFT wins by {dif:.2f} ({(dif/time_heft)*100:.2f}%)")
+        else:
+            dif = time_heft - time_hepft
+            print(f"\nHEPFT wins by {dif:.2f} ({(dif/time_hepft)*100:.2f}%)")
 
 if __name__ == "__main__":
     main()
