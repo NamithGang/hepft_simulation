@@ -36,70 +36,67 @@ def calc_heft(dag: TaskDAG, network: NetworkGraph) -> dict:
     
     return schedule
 
-def calc_hepft(dag: TaskDAG, network: NetworkGraph, dynamic_net: DynamicNetwork) -> tuple[dict, dict, dict]:
+def calc_hepft(dag: TaskDAG, network: NetworkGraph,
+               dynamic_net: DynamicNetwork,
+               volatility_threshold: float = 0.5,
+               availability_threshold: float = 0.7) -> dict:
+    """
+    volatility_threshold  - processors whose link CV exceeds this are excluded.
+                            0.5 means links varying more than 50% std/mean are too risky.
+    availability_threshold - processors that were online less than this fraction
+                            of snapshots are excluded.
+    """
+
+    # identify unreliable processors
+    unreliable = set()
+    for proc_id in network.processors:
+        volatility    = dynamic_net.proc_volatility(proc_id)
+        availability  = dynamic_net.proc_availability(proc_id)
+
+        if volatility > volatility_threshold:
+            unreliable.add(proc_id)
+            print(f"  [filter] P{proc_id} excluded: volatility={volatility:.2f} > {volatility_threshold}")
+        elif availability < availability_threshold:
+            unreliable.add(proc_id)
+            print(f"  [filter] P{proc_id} excluded: availability={availability:.2f} < {availability_threshold}")
+
+    # fall back to using all processors if filter removed everything
+    reliable_procs = [p for p in network.processors if p not in unreliable]
+    if not reliable_procs:
+        print("  [filter] all processors flagged — ignoring filter")
+        reliable_procs = list(network.processors.keys())
 
     # task prioritization
-    ranks = dag.compute_ranks(network)
+    ranks = dag.compute_ranks(network, dynamic_network=dynamic_net)
     sorted_tasks = sorted(ranks.keys(), key=lambda t: ranks[t], reverse=True)
 
-     # processor selection
-    proc_available_time = {proc_id: 0 for proc_id in network.processors}
-    schedule = {} # task_id: processor, start_time, finish_time
+    # processor selection — only consider reliable processors
+    schedule = {}
+    proc_available = {proc_id: 0.0 for proc_id in reliable_procs}
 
     for task_id in sorted_tasks:
         task = dag.nodes[task_id]
-        best_proc, best_est, best_eft = None, 0.0, float('inf')
+        best_proc, best_est, best_eft = None, None, float('inf')
 
-        # Always consider ALL processors
-        for proc_id in network.processors:
-            base_est = proc_available_time.get(proc_id, 0.0)
-            est = base_est
-
+        for proc_id in reliable_procs:
+            ready_time = 0.0
             for parent_id in task.parents:
-                parent_proc, _, parent_finish = schedule[parent_id]
-
-                transfer_time = max(parent_finish, est)
-                future_network = dynamic_net.pred_net_func(transfer_time)
-
+                parent_proc, _, parent_eft = schedule[parent_id]
                 data_size = dag.edges[(parent_id, task_id)]
-                comm = future_network.comm_cost(
-                    parent_proc,
-                    proc_id,
-                    data_size,
+                comm = dynamic_net.pred_net_func(parent_eft).comm_cost(
+                    parent_proc, proc_id, data_size,
                     fallback_bandwidth=network.bandwidth
                 )
+                ready_time = max(ready_time, parent_eft + comm)
 
-                est = max(est, parent_finish + comm)
-
-            # Check processor availability at actual start time
-            net_at_start = dynamic_net.pred_net_func(est)
-            if not net_at_start.has_processor(proc_id):
-                continue
-
+            est = max(ready_time, proc_available[proc_id])
             eft = est + task.comp_costs[proc_id]
 
             if eft < best_eft:
-                best_eft = eft
-                best_est = est
-                best_proc = proc_id
-
-        # Fallback (unchanged, but now rarely triggered)
-        if best_proc is None:
-            for proc_id in network.processors:
-                est = proc_available_time.get(proc_id, 0.0)
-                for parent_id in task.parents:
-                    parent_proc, _, parent_finish = schedule[parent_id]
-                    data_size = dag.edges[(parent_id, task_id)]
-                    comm = network.comm_cost(parent_proc, proc_id, data_size)
-                    est = max(est, parent_finish + comm)
-
-                eft = est + task.comp_costs[proc_id]
-
-                if eft < best_eft:
-                    best_eft, best_est, best_proc = eft, est, proc_id
+                best_eft, best_est, best_proc = eft, est, proc_id
 
         schedule[task_id] = (best_proc, best_est, best_eft)
-        proc_available_time[best_proc] = best_eft
+        proc_available[best_proc] = best_eft
 
     return schedule
 
