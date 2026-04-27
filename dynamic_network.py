@@ -1,5 +1,6 @@
 # dynamic_network.py
 import bisect
+from typing import Optional
 from make_network import NetworkGraph
 
 class DynamicNetwork:
@@ -62,6 +63,15 @@ class DynamicNetwork:
             cv_scores.append(std / mean)   # coefficient of variation
 
         return sum(cv_scores) / len(cv_scores)
+    def next_snapshot_time(self, t: float) -> float:
+        """
+        Returns the timestamp of the next snapshot strictly after time t.
+        Returns float('inf') if there are no snapshots after t.
+        """
+        idx = bisect.bisect_right(self.timestamps, t)
+        if idx >= len(self.snapshots):
+            return float('inf')
+        return self.snapshots[idx][0]
 
     def proc_availability(self, proc_id: int) -> float:
         """
