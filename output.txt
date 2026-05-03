@@ -1,0 +1,607 @@
+=================================================================
+  TC1: small sparse stable (8 procs)
+=================================================================
+
+  Planning schedules …
+  Computing oracle lower bound …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                  71.92
+  CPOP                  85.29
+  HEPFT                 71.64
+  HEPFT-Vol             71.53
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                  71.53      1.1625        0.9946
+  CPOP                  85.62      1.3913        1.0039
+  HEPFT                 71.53      1.1625        0.9985
+  HEPFT-Vol             71.53      1.1625        1.0000
+  Reactive              71.73      1.1656         n/a  
+
+  Oracle lower bound  : 61.54  [MIP]
+
+  Winner: HEFT  (beats runner-up HEPFT by 0.00 / 0.0%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 58.60
+  Oracle lower bound (MIP             ): 61.54
+  T_sequential                       : 156.00
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.2207     2.1808      +16.25%
+  CPOP             1.4610     1.8221      +39.13%
+  HEPFT            1.2207     2.1808      +16.25%
+  HEPFT-Vol        1.2207     2.1808      +16.25%
+  Reactive         1.2240     2.1749      +16.56%
+
+  Network volatility (mean CV)       : 0.0516
+  CPOP      improvement over HEFT    : -19.69%
+  HEPFT     improvement over HEFT    : +0.00%
+  HEPFT-Vol improvement over HEFT    : +0.00%
+  Reactive  improvement over HEFT    : -0.27%
+
+=================================================================
+  TC2: small dense stable (8 procs)
+=================================================================
+
+  Planning schedules …
+  Computing oracle lower bound …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 153.81
+  CPOP                 190.18
+  HEPFT                153.44
+  HEPFT-Vol            153.44
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 153.74      1.1686        0.9995
+  CPOP                 190.68      1.4495        1.0026
+  HEPFT                153.44      1.1664        1.0000
+  HEPFT-Vol            153.44      1.1664        1.0000
+  Reactive             153.44      1.1664         n/a  
+
+  Oracle lower bound  : 131.55  [MIP]
+
+  Winner: HEPFT  (beats runner-up HEPFT-Vol by 0.00 / 0.0%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 121.37
+  Oracle lower bound (MIP             ): 131.55
+  T_sequential                       : 175.10
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.2667     1.1390      +16.86%
+  CPOP             1.5711     0.9183      +44.95%
+  HEPFT            1.2642     1.1412      +16.64%
+  HEPFT-Vol        1.2642     1.1412      +16.64%
+  Reactive         1.2642     1.1412      +16.64%
+
+  Network volatility (mean CV)       : 0.0509
+  CPOP      improvement over HEFT    : -24.03%
+  HEPFT     improvement over HEFT    : +0.19%
+  HEPFT-Vol improvement over HEFT    : +0.19%
+  Reactive  improvement over HEFT    : +0.19%
+
+=================================================================
+  TC3: medium moderate fluctuation (8 procs)
+=================================================================
+
+  Planning schedules …
+  Computing oracle lower bound …
+  [oracle] Problem too large for MIP (100t × 8p) — using LP relaxation.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 193.09
+  CPOP                 233.89
+  HEPFT                206.38
+  HEPFT-Vol            207.54
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 225.60      1.3124        1.1683
+  CPOP                 246.09      1.4316        1.0521
+  HEPFT                213.72      1.2433        1.0356
+  HEPFT-Vol            207.54      1.2073        1.0000
+  Reactive             202.21      1.1763         n/a  
+
+  Oracle lower bound  : 171.90  [LP_relaxation]
+
+  Winner: Reactive  (beats runner-up HEPFT-Vol by 5.34 / 2.6%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 159.77
+  Oracle lower bound (LP_relaxation   ): 171.90
+  T_sequential                       : 368.01
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.4120     1.6313      +31.24%
+  CPOP             1.5403     1.4954      +43.16%
+  HEPFT            1.3377     1.7219      +24.33%
+  HEPFT-Vol        1.2990     1.7732      +20.73%
+  Reactive         1.2656     1.8200      +17.63%
+
+  Network volatility (mean CV)       : 0.4527
+  CPOP      improvement over HEFT    : -9.08%
+  HEPFT     improvement over HEFT    : +5.27%
+  HEPFT-Vol improvement over HEFT    : +8.00%
+  Reactive  improvement over HEFT    : +10.37%
+
+=================================================================
+  TC4: medium fluctuation + failures (8 procs)
+=================================================================
+
+  Planning schedules …
+  Computing oracle lower bound …
+  [oracle] Problem too large for MIP (100t × 8p) — using LP relaxation.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 257.81
+  CPOP                 313.69
+  HEPFT                254.59
+  HEPFT-Vol            254.84
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 270.24      1.2034        1.0482
+  CPOP                 313.63      1.3966        0.9998
+  HEPFT                263.99      1.1756        1.0369
+  HEPFT-Vol            254.84      1.1348        1.0000
+  Reactive             253.93      1.1308         n/a  
+
+  Oracle lower bound  : 224.57  [LP_relaxation]
+
+  Winner: Reactive  (beats runner-up HEPFT-Vol by 0.91 / 0.4%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 206.81
+  Oracle lower bound (LP_relaxation   ): 224.57
+  T_sequential                       : 319.84
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.3067     1.1836      +20.34%
+  CPOP             1.5165     1.0198      +39.66%
+  HEPFT            1.2765     1.2115      +17.56%
+  HEPFT-Vol        1.2322     1.2551      +13.48%
+  Reactive         1.2278     1.2596      +13.08%
+
+  Network volatility (mean CV)       : 0.4439
+  CPOP      improvement over HEFT    : -16.06%
+  HEPFT     improvement over HEFT    : +2.31%
+  HEPFT-Vol improvement over HEFT    : +5.70%
+  Reactive  improvement over HEFT    : +6.03%
+
+=================================================================
+  TC5: medium high fluctuation (12 procs)
+=================================================================
+
+  Planning schedules …
+  Computing oracle lower bound …
+  [oracle] Problem too large for MIP (150t × 12p) — using LP relaxation.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 297.08
+  CPOP                 386.68
+  HEPFT                303.06
+  HEPFT-Vol            298.41
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 325.01      1.3014        1.0940
+  CPOP                 387.88      1.5532        1.0031
+  HEPFT                313.04      1.2535        1.0329
+  HEPFT-Vol            298.41      1.1949        1.0000
+  Reactive             299.67      1.2000         n/a  
+
+  Oracle lower bound  : 249.73  [LP_relaxation]
+
+  Winner: HEPFT-Vol  (beats runner-up Reactive by 1.26 / 0.4%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 236.83
+  Oracle lower bound (LP_relaxation   ): 249.73
+  T_sequential                       : 447.08
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.3724     1.3756      +30.14%
+  CPOP             1.6378     1.1526      +55.32%
+  HEPFT            1.3218     1.4282      +25.35%
+  HEPFT-Vol        1.2600     1.4982      +19.49%
+  Reactive         1.2653     1.4919      +20.00%
+
+  Network volatility (mean CV)       : 0.4502
+  CPOP      improvement over HEFT    : -19.34%
+  HEPFT     improvement over HEFT    : +3.69%
+  HEPFT-Vol improvement over HEFT    : +8.19%
+  Reactive  improvement over HEFT    : +7.80%
+
+=================================================================
+  TC6: medium correlated failures (12 procs)
+=================================================================
+
+  Planning schedules …
+  Computing oracle lower bound …
+  [oracle] Problem too large for MIP (150t × 12p) — using LP relaxation.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 327.97
+  CPOP                 438.68
+  HEPFT                345.24
+  HEPFT-Vol            338.84
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 365.71      1.2898        1.1151
+  CPOP                 438.23      1.5455        0.9990
+  HEPFT                350.50      1.2361        1.0152
+  HEPFT-Vol            338.84      1.1950        1.0000
+  Reactive             339.70      1.1980         n/a  
+
+  Oracle lower bound  : 283.55  [LP_relaxation]
+
+  Winner: HEPFT-Vol  (beats runner-up Reactive by 0.86 / 0.3%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 268.65
+  Oracle lower bound (LP_relaxation   ): 283.55
+  T_sequential                       : 513.17
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.3613     1.4032      +28.98%
+  CPOP             1.6312     1.1710      +54.55%
+  HEPFT            1.3047     1.4641      +23.61%
+  HEPFT-Vol        1.2613     1.5145      +19.50%
+  Reactive         1.2645     1.5106      +19.80%
+
+  Network volatility (mean CV)       : 0.4466
+  CPOP      improvement over HEFT    : -19.83%
+  HEPFT     improvement over HEFT    : +4.16%
+  HEPFT-Vol improvement over HEFT    : +7.35%
+  Reactive  improvement over HEFT    : +7.11%
+
+=================================================================
+  TC7: large moderate volatility (12 procs)
+=================================================================
+
+  Planning schedules …
+  Computing oracle lower bound …
+  [oracle] Problem too large for LP (250t × 12p) — using CP lower bound.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 328.94
+  CPOP                 466.17
+  HEPFT                356.28
+  HEPFT-Vol            354.77
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 359.31      1.3577        1.0923
+  CPOP                 479.12      1.8104        1.0278
+  HEPFT                373.19      1.4101        1.0475
+  HEPFT-Vol            354.77      1.3405        1.0000
+  Reactive             347.72      1.3139         n/a  
+
+  Oracle lower bound  : 264.65  [fallback_cp]
+
+  Winner: Reactive  (beats runner-up HEPFT-Vol by 7.04 / 2.0%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 264.65
+  Oracle lower bound (fallback_cp     ): 264.65
+  T_sequential                       : 787.94
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.3577     2.1929      +35.77%
+  CPOP             1.8104     1.6445      +81.04%
+  HEPFT            1.4101     2.1114      +41.01%
+  HEPFT-Vol        1.3405     2.2210      +34.05%
+  Reactive         1.3139     2.2660      +31.39%
+
+  Network volatility (mean CV)       : 0.4571
+  CPOP      improvement over HEFT    : -33.34%
+  HEPFT     improvement over HEFT    : -3.86%
+  HEPFT-Vol improvement over HEFT    : +1.27%
+  Reactive  improvement over HEFT    : +3.23%
+
+=================================================================
+  TC8: large dense high volatility (16 procs)
+=================================================================
+
+  Planning schedules …
+  [filter] P4 excluded: availability=0.69 < 0.7
+  [filter] P5 excluded: availability=0.69 < 0.7
+  Computing oracle lower bound …
+  [oracle] Problem too large for LP (300t × 16p) — using CP lower bound.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 527.80
+  CPOP                 782.27
+  HEPFT                556.36
+  HEPFT-Vol            577.43
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 579.34      1.3657        1.0976
+  CPOP                 783.98      1.8481        1.0022
+  HEPFT                562.34      1.3257        1.0108
+  HEPFT-Vol            577.43      1.3612        1.0000
+  Reactive             559.25      1.3184         n/a  
+
+  Oracle lower bound  : 424.20  [fallback_cp]
+
+  Winner: Reactive  (beats runner-up HEPFT by 3.09 / 0.5%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 424.20
+  Oracle lower bound (fallback_cp     ): 424.20
+  T_sequential                       : 937.30
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.3657     1.6179      +36.57%
+  CPOP             1.8481     1.1956      +84.81%
+  HEPFT            1.3257     1.6668      +32.57%
+  HEPFT-Vol        1.3612     1.6232      +36.12%
+  Reactive         1.3184     1.6760      +31.84%
+
+  Network volatility (mean CV)       : 0.4535
+  CPOP      improvement over HEFT    : -35.32%
+  HEPFT     improvement over HEFT    : +2.93%
+  HEPFT-Vol improvement over HEFT    : +0.33%
+  Reactive  improvement over HEFT    : +3.47%
+
+=================================================================
+  TC9: large extreme volatility (16 procs)
+=================================================================
+
+  Planning schedules …
+  [filter] P0 excluded: availability=0.59 < 0.7
+  [filter] P9 excluded: availability=0.67 < 0.7
+  [filter] P15 excluded: availability=0.69 < 0.7
+  Computing oracle lower bound …
+  [oracle] Problem too large for LP (400t × 16p) — using CP lower bound.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 525.66
+  CPOP                 721.09
+  HEPFT                561.83
+  HEPFT-Vol            572.92
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 563.83      1.3386        1.0726
+  CPOP                 731.24      1.7360        1.0141
+  HEPFT                579.40      1.3755        1.0313
+  HEPFT-Vol            572.92      1.3601        1.0000
+  Reactive             569.67      1.3524         n/a  
+
+  Oracle lower bound  : 421.22  [fallback_cp]
+
+  Winner: HEFT  (beats runner-up Reactive by 5.84 / 1.0%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 421.22
+  Oracle lower bound (fallback_cp     ): 421.22
+  T_sequential                       : 1183.51
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.3386     2.0991      +33.86%
+  CPOP             1.7360     1.6185      +73.60%
+  HEPFT            1.3755     2.0427      +37.55%
+  HEPFT-Vol        1.3601     2.0658      +36.01%
+  Reactive         1.3524     2.0776      +35.24%
+
+  Network volatility (mean CV)       : 0.4577
+  CPOP      improvement over HEFT    : -29.69%
+  HEPFT     improvement over HEFT    : -2.76%
+  HEPFT-Vol improvement over HEFT    : -1.61%
+  Reactive  improvement over HEFT    : -1.04%
+
+=================================================================
+  TC10: largest dense worst case (16 procs)
+=================================================================
+
+  Planning schedules …
+  [filter] P5 excluded: availability=0.62 < 0.7
+  [filter] P11 excluded: availability=0.64 < 0.7
+  [filter] P15 excluded: availability=0.53 < 0.7
+  Computing oracle lower bound …
+  [oracle] Problem too large for LP (500t × 16p) — using CP lower bound.
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans (static network)
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 909.44
+  CPOP                1296.10
+  HEPFT                929.56
+  HEPFT-Vol            966.17
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated   vs Oracle    Robustness
+  ----------------------------------------------------
+  HEFT                 959.86      1.3042        1.0554
+  CPOP                1310.50      1.7806        1.0111
+  HEPFT                952.87      1.2947        1.0251
+  HEPFT-Vol            966.17      1.3128        1.0000
+  Reactive             928.57      1.2617         n/a  
+
+  Oracle lower bound  : 735.98  [fallback_cp]
+
+  Winner: Reactive  (beats runner-up HEPFT by 24.30 / 2.6%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 735.98
+  Oracle lower bound (fallback_cp     ): 735.98
+  T_sequential                       : 1576.19
+
+  Algorithm           SLR    Speedup    Opt-gap%
+  ----------------------------------------------
+  HEFT             1.3042     1.6421      +30.42%
+  CPOP             1.7806     1.2027      +78.06%
+  HEPFT            1.2947     1.6542      +29.47%
+  HEPFT-Vol        1.3128     1.6314      +31.28%
+  Reactive         1.2617     1.6974      +26.17%
+
+  Network volatility (mean CV)       : 0.4553
+  CPOP      improvement over HEFT    : -36.53%
+  HEPFT     improvement over HEFT    : +0.73%
+  HEPFT-Vol improvement over HEFT    : -0.66%
+  Reactive  improvement over HEFT    : +3.26%
+
+==================================================================================
+  Cross-Case Summary  (simulated makespans, * = best per row)
+==================================================================================
+  Test Case                                Vol     HEFT     CPOP    HEPFT    H-Vol    React    Oracle
+  -------------------------------------------------------------------------------
+  TC1: small sparse stable (8 procs)     0.052     71.5*     85.6      71.5*     71.5*     71.7     61.5(MIP)
+  TC2: small dense stable (8 procs)      0.051    153.7     190.7     153.4*    153.4*    153.4*   131.6(MIP)
+  TC3: medium moderate fluctuation (8 procs) 0.453    225.6     246.1     213.7     207.5     202.2*   171.9(LP_)
+  TC4: medium fluctuation + failures (8 procs) 0.444    270.2     313.6     264.0     254.8     253.9*   224.6(LP_)
+  TC5: medium high fluctuation (12 procs) 0.450    325.0     387.9     313.0     298.4*    299.7    249.7(LP_)
+  TC6: medium correlated failures (12 procs) 0.447    365.7     438.2     350.5     338.8*    339.7    283.5(LP_)
+  TC7: large moderate volatility (12 procs) 0.457    359.3     479.1     373.2     354.8     347.7*   264.6(fal)
+  TC8: large dense high volatility (16 procs) 0.453    579.3     784.0     562.3     577.4     559.3*   424.2(fal)
+  TC9: large extreme volatility (16 procs) 0.458    563.8*    731.2     579.4     572.9     569.7    421.2(fal)
+  TC10: largest dense worst case (16 procs) 0.455    959.9    1310.5     952.9     966.2     928.6*   736.0(fal)
+
+─────────────────────────────────────────────────────────────────
+  HEPFT improvement over HEFT  vs  Network Volatility
+─────────────────────────────────────────────────────────────────
+  vol=0.051   +0.19%   (HEPFT better)
+  vol=0.052   +0.00%   (HEPFT better)
+  vol=0.444   +2.31%   (HEPFT better)
+  vol=0.447   +4.16%   (HEPFT better)
+  vol=0.450   +3.69%   (HEPFT better)
+  vol=0.453   +5.27%   (HEPFT better)
+  vol=0.453   +2.93%   (HEPFT better)
+  vol=0.455   +0.73%   (HEPFT better)
+  vol=0.457   -3.86%   (HEFT  better)
+  vol=0.458   -2.76%   (HEFT  better)
+
+  Avg improvement — low  volatility : +2.07%
+  Avg improvement — high volatility : +0.46%
+  → HEPFT's advantage shrinks at higher volatility
+
+─────────────────────────────────────────────────────────────────
+  HEPFT-Vol improvement over HEFT  vs  Network Volatility
+─────────────────────────────────────────────────────────────────
+  vol=0.051   +0.19%   (HEPFT-Vol better)
+  vol=0.052   +0.00%   (HEPFT-Vol better)
+  vol=0.444   +5.70%   (HEPFT-Vol better)
+  vol=0.447   +7.35%   (HEPFT-Vol better)
+  vol=0.450   +8.19%   (HEPFT-Vol better)
+  vol=0.453   +8.00%   (HEPFT-Vol better)
+  vol=0.453   +0.33%   (HEPFT-Vol better)
+  vol=0.455   -0.66%   (HEFT  better)
+  vol=0.457   +1.27%   (HEPFT-Vol better)
+  vol=0.458   -1.61%   (HEFT  better)
+
+  Avg improvement — low  volatility : +4.29%
+  Avg improvement — high volatility : +1.47%
+  → HEPFT-Vol's advantage shrinks at higher volatility

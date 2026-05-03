@@ -11,7 +11,8 @@ class TaskDAG:
     # ─────────────────────────────────────────────
     
         static_ranks = {}
-        avg_bw = sum(network.bandwidth.values()) / len(network.bandwidth)
+        avg_bw = (sum(network.bandwidth.values()) / len(network.bandwidth)
+                  if network.bandwidth else 1.0)
 
         for task_id in self._topological_sort():
             task = self.nodes[task_id]

@@ -394,6 +394,204 @@ def get_test_cases() -> list[dict]:
             "volatility_threshold": 0.35,
             "availability_threshold": 0.85,
         },
+
+        # ── TC11: rapid bandwidth thrash, short recovery, 8 procs ──────────
+        # Very fast fluctuations (every 0.5–1s) with extreme range make
+        # bandwidth almost unpredictable; failures are brief but frequent.
+        {
+            "name": "TC11: rapid bandwidth thrash (8 procs)",
+            "dag": create_dag(n=80, p=0.3, seed=11, num_processors=8),
+            "network": create_network(num_processors=8),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=8), seed=11,
+                fluctuation_interval=(0.5, 1.0),
+                fluctuation_range=(0.05, 3.0),
+                failure_interval=(5, 10),
+                recovery_interval=(1, 3),
+                enable_correlated_failures=False
+            ).run(until=200.0),
+            "volatility_threshold": 0.3,
+            "availability_threshold": 0.85,
+        },
+
+        # ── TC12: near-permanent processor outages, 12 procs ───────────────
+        # Failures happen very frequently and recovery takes a long time,
+        # meaning processors spend more time down than up.
+        {
+            "name": "TC12: near-permanent outages (12 procs)",
+            "dag": create_dag(n=120, p=0.25, seed=12, num_processors=12),
+            "network": create_network(num_processors=12),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=12), seed=12,
+                fluctuation_interval=(2, 4),
+                fluctuation_range=(0.1, 2.0),
+                failure_interval=(5, 8),
+                recovery_interval=(40, 80),      # very long outages
+                enable_correlated_failures=False
+            ).run(until=200.0),
+            "volatility_threshold": 0.3,
+            "availability_threshold": 0.9,
+        },
+
+        # ── TC13: cascading correlated failures, 16 procs ──────────────────
+        # Large cluster_size combined with rapid correlated failures means
+        # the majority of processors can be simultaneously absent.
+        {
+            "name": "TC13: cascading correlated failures (16 procs)",
+            "dag": create_dag(n=200, p=0.3, seed=13, num_processors=16),
+            "network": create_network(num_processors=16),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=16), seed=13,
+                fluctuation_interval=(1, 3),
+                fluctuation_range=(0.1, 2.5),
+                failure_interval=(8, 12),
+                recovery_interval=(20, 40),
+                enable_correlated_failures=True,
+                cluster_size=10                  # 10 of 16 go down together
+            ).run(until=200.0),
+            "volatility_threshold": 0.25,
+            "availability_threshold": 0.9,
+        },
+
+        # ── TC14: extreme bandwidth variance, sparse DAG, 12 procs ─────────
+        # Bandwidth swings from near-zero to 5× base in very short windows,
+        # making comm-cost prediction very unreliable.
+        {
+            "name": "TC14: extreme bandwidth variance sparse (12 procs)",
+            "dag": create_dag(n=150, p=0.15, seed=14, num_processors=12),
+            "network": create_network(num_processors=12),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=12), seed=14,
+                fluctuation_interval=(0.5, 1.5),
+                fluctuation_range=(0.02, 5.0),   # near-zero to 5× base
+                failure_interval=(15, 25),
+                recovery_interval=(5, 10),
+                enable_correlated_failures=False
+            ).run(until=200.0),
+            "volatility_threshold": 0.25,
+            "availability_threshold": 0.85,
+        },
+
+        # ── TC15: dense DAG + extreme churn, 16 procs ──────────────────────
+        # High edge density means many comm-heavy dependencies; extreme
+        # churn means none of those comm costs are stable.
+        {
+            "name": "TC15: dense DAG extreme churn (16 procs)",
+            "dag": create_dag(n=250, p=0.5, seed=15, num_processors=16),
+            "network": create_network(num_processors=16),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=16), seed=15,
+                fluctuation_interval=(0.5, 1.0),
+                fluctuation_range=(0.05, 4.0),
+                failure_interval=(5, 10),
+                recovery_interval=(10, 20),
+                enable_correlated_failures=True,
+                cluster_size=6
+            ).run(until=200.0),
+            "volatility_threshold": 0.25,
+            "availability_threshold": 0.9,
+        },
+
+        # ── TC16: rolling wave failures, medium DAG, 12 procs ──────────────
+        # Very short recovery windows mean processors cycle up and down
+        # repeatedly, creating a "rolling wave" availability pattern.
+        {
+            "name": "TC16: rolling wave failures (12 procs)",
+            "dag": create_dag(n=180, p=0.3, seed=16, num_processors=12),
+            "network": create_network(num_processors=12),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=12), seed=16,
+                fluctuation_interval=(1, 2),
+                fluctuation_range=(0.1, 2.0),
+                failure_interval=(3, 6),         # fail very often
+                recovery_interval=(2, 4),        # recover quickly → many cycles
+                enable_correlated_failures=True,
+                cluster_size=4
+            ).run(until=200.0),
+            "volatility_threshold": 0.25,
+            "availability_threshold": 0.9,
+        },
+
+        # ── TC17: asymmetric cluster churn, 16 procs ───────────────────────
+        # One cluster (A) is rock-stable; cluster B churns aggressively.
+        # Tests whether schedulers correctly migrate work to the stable side.
+        {
+            "name": "TC17: asymmetric cluster churn (16 procs)",
+            "dag": create_dag(n=300, p=0.25, seed=17, num_processors=16),
+            "network": create_network(num_processors=16),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=16), seed=17,
+                fluctuation_interval=(0.5, 1.5),
+                fluctuation_range=(0.05, 4.0),
+                failure_interval=(4, 8),
+                recovery_interval=(15, 30),
+                enable_correlated_failures=True,
+                cluster_size=8                   # entire second cluster goes down
+            ).run(until=200.0),
+            "volatility_threshold": 0.2,
+            "availability_threshold": 0.9,
+        },
+
+        # ── TC18: micro-burst failures, large sparse DAG, 16 procs ─────────
+        # Failures come in rapid micro-bursts (very short interval) but
+        # each individual outage is also short — high churn, low down-time.
+        {
+            "name": "TC18: micro-burst failures sparse (16 procs)",
+            "dag": create_dag(n=400, p=0.15, seed=18, num_processors=16),
+            "network": create_network(num_processors=16),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=16), seed=18,
+                fluctuation_interval=(0.3, 0.8),
+                fluctuation_range=(0.1, 3.0),
+                failure_interval=(2, 4),
+                recovery_interval=(1, 2),        # short outages, very frequent
+                enable_correlated_failures=True,
+                cluster_size=5
+            ).run(until=200.0),
+            "volatility_threshold": 0.2,
+            "availability_threshold": 0.9,
+        },
+
+        # ── TC19: maximum processors, catastrophic churn ───────────────────
+        # Pushes to 16 procs with the most aggressive settings across all
+        # dimensions: bandwidth, failures, cluster size, and DAG density.
+        {
+            "name": "TC19: maximum procs catastrophic churn (16 procs)",
+            "dag": create_dag(n=450, p=0.35, seed=19, num_processors=16),
+            "network": create_network(num_processors=16),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=16), seed=19,
+                fluctuation_interval=(0.3, 0.7),
+                fluctuation_range=(0.02, 5.0),
+                failure_interval=(3, 5),
+                recovery_interval=(20, 50),      # long recovery + frequent fail
+                enable_correlated_failures=True,
+                cluster_size=12                  # 12 of 16 go down together
+            ).run(until=200.0),
+            "volatility_threshold": 0.2,
+            "availability_threshold": 0.95,
+        },
+
+        # ── TC20: worst-case everything, 16 procs ──────────────────────────
+        # The absolute stress test: largest DAG, densest edges, fastest
+        # fluctuations, most extreme bandwidth range, biggest cluster failures,
+        # and longest recovery times.
+        {
+            "name": "TC20: worst-case everything (16 procs)",
+            "dag": create_dag(n=500, p=0.4, seed=20, num_processors=16),
+            "network": create_network(num_processors=16),
+            "dynamic_network": WorkflowSimNetwork(
+                create_network(num_processors=16), seed=20,
+                fluctuation_interval=(0.2, 0.5),
+                fluctuation_range=(0.01, 6.0),   # near-zero to 6× base
+                failure_interval=(2, 4),
+                recovery_interval=(30, 60),      # very long outages
+                enable_correlated_failures=True,
+                cluster_size=14                  # almost all procs go down
+            ).run(until=200.0),
+            "volatility_threshold": 0.15,
+            "availability_threshold": 0.95,
+        },
     ]
 
 

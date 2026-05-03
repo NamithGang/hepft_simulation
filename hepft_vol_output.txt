@@ -1,0 +1,25 @@
+=================================================================
+  Cross-Case Summary
+=================================================================
+  Test Case                        BestVT   BestAT    BestSim
+  ----------------------------------------------------
+  TC1: small sparse stable (8 procs)     0.10     0.50      71.53
+  TC2: small dense stable (8 procs)     0.10     0.50     153.44
+  TC3: medium moderate fluctuation (8 procs)     0.10     0.50     207.54
+  TC4: medium fluctuation + failures (8 procs)     0.10     0.50     254.84
+  TC5: medium high fluctuation (12 procs)     0.10     0.50     298.41
+  TC6: medium correlated failures (12 procs)     0.10     0.50     338.84
+  TC7: large moderate volatility (12 procs)     0.10     0.50     354.77
+  TC8: large dense high volatility (16 procs)     0.10     0.50     554.05
+  TC9: large extreme volatility (16 procs)     0.10     0.50     564.96
+  TC10: largest dense worst case (16 procs)     0.10     0.50     930.53
+  TC11: rapid bandwidth thrash (8 procs)     0.10     0.50     148.08
+  TC12: near-permanent outages (12 procs)     0.70     0.75     203.86
+  TC13: cascading correlated failures (16 procs)     0.70     0.55     384.76
+  TC14: extreme bandwidth variance sparse (12 procs)     0.10     0.50     149.61
+  TC15: dense DAG extreme churn (16 procs)     0.70     0.50     654.46
+  TC16: rolling wave failures (12 procs)     0.10     0.50     318.33
+  TC17: asymmetric cluster churn (16 procs)     0.10     0.50     502.85
+  TC18: micro-burst failures sparse (16 procs)     0.10     0.50     425.22
+  TC19: maximum procs catastrophic churn (16 procs)     0.70     0.50     970.96
+  TC20: worst-case everything (16 procs)     0.10     0.50    2425.09
