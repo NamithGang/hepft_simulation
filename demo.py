@@ -602,3 +602,87 @@ def get_test_cases() -> list[dict]:
 def create_dynamic_network(base_network: NetworkGraph) -> DynamicNetwork:
     sim = WorkflowSimNetwork(base_network, seed=42)
     return sim.run(until=200.0)
+
+# ─────────────────────────────────────────────
+# Small fixed test case — 8 tasks, 8 processors
+# ─────────────────────────────────────────────
+#
+# DAG structure (task IDs 1–8):
+#
+#              T1
+#           /  |  \
+#         T2  T3  T4
+#         |\ /|   |
+#         | X |   |
+#         |/ \|   |
+#         T5  T6  T7
+#          \  |  /
+#             T8
+#
+# Edges with communication costs:
+#   T1→T2(2)  T1→T3(3)  T1→T4(1)
+#   T2→T5(2)  T2→T6(3)
+#   T3→T5(1)  T3→T6(2)
+#   T4→T7(2)
+#   T5→T8(3)  T6→T8(2)  T7→T8(1)
+#
+# Computation costs vary per processor to make scheduling decisions interesting.
+
+def create_test_case() -> dict:
+    """
+    Returns a dict with keys:
+      dag, network, dynamic_network, name,
+      volatility_threshold, availability_threshold
+    """
+    NUM_PROCS = 8
+
+    # ── DAG ─────────────────────────────────────────────────────────────────
+    dag = TaskDAG()
+
+    # comp_costs[task_id][proc_id] — deliberately varied so HEFT makes
+    # non-trivial choices (not all tasks prefer the same processor)
+    comp_data = {
+        1: [6, 5, 7, 8, 6, 5, 7, 6],
+        2: [8, 7, 6, 7, 9, 8, 7, 8],
+        3: [5, 6, 5, 6, 5, 7, 6, 5],
+        4: [7, 8, 9, 7, 6, 7, 8, 7],
+        5: [9, 8, 7, 8, 9, 8, 9, 8],
+        6: [6, 5, 6, 7, 6, 5, 6, 7],
+        7: [8, 7, 8, 6, 7, 8, 7, 8],
+        8: [4, 5, 4, 5, 4, 5, 4, 5],
+    }
+    for tid, costs in comp_data.items():
+        dag.nodes[tid] = Task(tid, {p: float(c) for p, c in enumerate(costs)})
+
+    edges = [
+        (1, 2, 2), (1, 3, 3), (1, 4, 1),
+        (2, 5, 2), (2, 6, 3),
+        (3, 5, 1), (3, 6, 2),
+        (4, 7, 2),
+        (5, 8, 3), (6, 8, 2), (7, 8, 1),
+    ]
+    for src, dst, comm in edges:
+        dag.add_edge(src, dst, comm_cost=comm)
+
+    # ── Network — 8 processors in two speed tiers ─────────────────────────
+    net = create_network(num_processors=NUM_PROCS)
+
+    # ── Dynamic network — mild fluctuation, occasional single failure ──────
+    dynamic_net = WorkflowSimNetwork(
+        create_network(num_processors=NUM_PROCS),
+        seed=7,
+        fluctuation_interval=(10, 20),
+        fluctuation_range=(0.8, 1.2),
+        failure_interval=(30, 60),
+        recovery_interval=(5, 15),
+        enable_correlated_failures=False,
+    ).run(until=200.0)
+
+    return {
+        "name": "Small fixed 8-task DAG on 8 processors",
+        "dag": dag,
+        "network": net,
+        "dynamic_network": dynamic_net,
+        "volatility_threshold": 0.6,
+        "availability_threshold": 0.6,
+    }

@@ -5,7 +5,6 @@ from dynamic_network import DynamicNetwork
 from heft import calc_heft
 from hepft import calc_hepft
 from hepft_vol import calc_hepft_vol
-from cpop import calc_cpop
 from reactive import simulate_reactive
 from oracle_ilp import calc_oracle_ilp
 
@@ -107,33 +106,24 @@ def main():
         # ── planned schedules ──────────────────────────────────────────────
         print("\n  Planning schedules …")
         sched_heft     = calc_heft(dag, network)
-        sched_cpop     = calc_cpop(dag, network)
-        sched_hepft    = calc_hepft(dag, network, dyn)
-        sched_hepft_v  = calc_hepft_vol(dag, network, dyn,0.1,0.7)
+        sched_hepftStatic    = calc_hepft(dag, network, dyn, False)
+        sched_hepftDynamic    = calc_hepft(dag, network, dyn, True)
         sched_reactive = simulate_reactive(dag, network, dyn)  # event-driven
-
-        print("  Computing oracle lower bound …")
-        oracle          = calc_oracle_ilp(dag, network, time_limit=60)
-        oracle_makespan = oracle['makespan']
-        oracle_method   = oracle['method']
-        oracle_gap      = oracle['gap']
 
         # ── simulate planned schedules on the real dynamic network ─────────
         sim_heft     = simulate_on_dynamic(dag, dyn, sched_heft)
-        sim_cpop     = simulate_on_dynamic(dag, dyn, sched_cpop)
-        sim_hepft    = simulate_on_dynamic(dag, dyn, sched_hepft)
-        sim_hepft_v  = simulate_on_dynamic(dag, dyn, sched_hepft_v)
+        sim_hepftStatic    = simulate_on_dynamic(dag, dyn, sched_hepftStatic)
+        sim_hepftDynamic    = simulate_on_dynamic(dag, dyn, sched_hepftDynamic)
         sim_reactive = sched_reactive   # reactive is already "actual"
 
         ms_plan_heft    = _makespan(sched_heft)
-        ms_plan_cpop    = _makespan(sched_cpop)
-        ms_plan_hepft   = _makespan(sched_hepft)
-        ms_plan_hepft_v = _makespan(sched_hepft_v)
+        ms_plan_hepftStatic    = _makespan(sched_hepftStatic)
+        ms_plan_hepftDynamic    = _makespan(sched_hepftDynamic)
+
 
         ms_sim_heft     = _makespan(sim_heft)
-        ms_sim_cpop     = _makespan(sim_cpop)
-        ms_sim_hepft    = _makespan(sim_hepft)
-        ms_sim_hepft_v  = _makespan(sim_hepft_v)
+        ms_sim_hepftStatic    = _makespan(sim_hepftStatic)
+        ms_sim_hepftDynamic    = _makespan(sim_hepftDynamic)
         ms_sim_reactive = _makespan(sim_reactive)
 
         # ── planned makespans ──────────────────────────────────────────────
@@ -142,11 +132,10 @@ def main():
         print(f"{'─'*65}")
         print(f"  {'Algorithm':<16} {'Planned':>10}")
         print(f"  {'-'*28}")
-        print(f"  {'HEFT':<16} {ms_plan_heft:>10.2f}")
-        print(f"  {'CPOP':<16} {ms_plan_cpop:>10.2f}")
-        print(f"  {'HEPFT':<16} {ms_plan_hepft:>10.2f}")
-        print(f"  {'HEPFT-Vol':<16} {ms_plan_hepft_v:>10.2f}")
-        print(f"  {'Reactive':<16} {'(n/a)':>10}")
+        print(f"  {'HEFT':<16}          {ms_plan_heft:>10.2f}")
+        print(f"  {'HEPFT Static':<16}  {ms_plan_hepftStatic:>10.2f}")
+        print(f"  {'HEPFT Dynamic':<16} {ms_plan_hepftDynamic:>10.2f}")
+        print(f"  {'Reactive':<16}      {'(n/a)':>10}")
 
         # ── simulated makespans ────────────────────────────────────────────
         print(f"\n{'─'*65}")
@@ -156,28 +145,23 @@ def main():
         print(f"  {'-'*52}")
 
         def _row(name, ms_sim, ms_plan=None):
-            ratio_oracle = ms_sim / oracle_makespan if oracle_makespan > 0 else float('nan')
             robustness   = (ms_sim / ms_plan if ms_plan and ms_plan > 0
                             else float('nan'))
             rob_str = f"{robustness:.4f}" if ms_plan else "  n/a  "
-            print(f"  {name:<16} {ms_sim:>10.2f}  {ratio_oracle:>10.4f}  {rob_str:>12}")
+            print(f"  {name:<16} {ms_sim:>10.2f} {rob_str:>12}")
+        
+        _row("HEFT",          ms_sim_heft,          ms_plan_heft)
+        _row("HEPFT Static",  ms_sim_hepftStatic,  ms_plan_hepftStatic)
+        _row("HEPFT Dynamic", ms_sim_hepftDynamic, ms_plan_hepftDynamic)
+        _row("Reactive",      ms_sim_reactive)
 
-        _row("HEFT",      ms_sim_heft,    ms_plan_heft)
-        _row("CPOP",      ms_sim_cpop,    ms_plan_cpop)
-        _row("HEPFT",     ms_sim_hepft,   ms_plan_hepft)
-        _row("HEPFT-Vol", ms_sim_hepft_v, ms_plan_hepft_v)
-        _row("Reactive",  ms_sim_reactive)
-
-        gap_str = f"  gap={oracle_gap*100:.1f}%" if oracle_gap > 0 else ""
-        print(f"\n  Oracle lower bound  : {oracle_makespan:.2f}  [{oracle_method}]{gap_str}")
 
         # ── winner ─────────────────────────────────────────────────────────
         candidates = {
-            "HEFT":      ms_sim_heft,
-            "CPOP":      ms_sim_cpop,
-            "HEPFT":     ms_sim_hepft,
-            "HEPFT-Vol": ms_sim_hepft_v,
-            "Reactive":  ms_sim_reactive,
+            "HEFT":          ms_sim_heft,
+            "HEPFT Static":  ms_sim_hepftStatic,
+            "HEPFT Dynamic": ms_sim_hepftDynamic,
+            "Reactive":      ms_sim_reactive,
         }
         ranking = sorted(candidates.items(), key=lambda kv: kv[1])
         winner, win_ms = ranking[0]
@@ -191,7 +175,6 @@ def main():
         print("  Per-algorithm metrics")
         print(f"{'─'*65}")
         print(f"  CP_min                             : {cp:.2f}")
-        print(f"  Oracle lower bound ({oracle_method:<16}): {oracle_makespan:.2f}")
         print(f"  T_sequential                       : {t_seq:.2f}")
         print()
         print(f"  {'Algorithm':<14} {'SLR':>8}  {'Speedup':>9}  {'Opt-gap%':>10}")
@@ -199,29 +182,34 @@ def main():
         for name, ms in candidates.items():
             slr     = ms / cp    if cp    > 0 else float('nan')
             speedup = t_seq / ms if ms    > 0 else float('nan')
-            opt_gap = (ms - oracle_makespan) / oracle_makespan * 100 if oracle_makespan > 0 else float('nan')
-            print(f"  {name:<14} {slr:>8.4f}  {speedup:>9.4f}  {opt_gap:>+10.2f}%")
+            print(f"  {name:<14} {slr:>8.4f}  {speedup:>9.4f} ")
 
         print(f"\n  Network volatility (mean CV)       : {vol:.4f}")
-        pct_hepft   = (ms_sim_heft - ms_sim_hepft)   / ms_sim_heft * 100 if ms_sim_heft > 0 else 0.0
-        pct_hepft_v = (ms_sim_heft - ms_sim_hepft_v) / ms_sim_heft * 100 if ms_sim_heft > 0 else 0.0
-        pct_cpop    = (ms_sim_heft - ms_sim_cpop)     / ms_sim_heft * 100 if ms_sim_heft > 0 else 0.0
-        pct_react   = (ms_sim_heft - ms_sim_reactive) / ms_sim_heft * 100 if ms_sim_heft > 0 else 0.0
-        print(f"  CPOP      improvement over HEFT    : {pct_cpop:+.2f}%")
-        print(f"  HEPFT     improvement over HEFT    : {pct_hepft:+.2f}%")
-        print(f"  HEPFT-Vol improvement over HEFT    : {pct_hepft_v:+.2f}%")
-        print(f"  Reactive  improvement over HEFT    : {pct_react:+.2f}%")
+        pct_hepft_static = (
+            (ms_sim_heft - ms_sim_hepftStatic) / ms_sim_heft * 100
+            if ms_sim_heft > 0 else 0.0
+        )
+
+        pct_hepft_dynamic = (
+            (ms_sim_heft - ms_sim_hepftDynamic) / ms_sim_heft * 100
+            if ms_sim_heft > 0 else 0.0
+        )
+
+        pct_react = (
+            (ms_sim_heft - ms_sim_reactive) / ms_sim_heft * 100
+            if ms_sim_heft > 0 else 0.0
+        )
+        print(f"  HEPFT Static  improvement over HEFT : {pct_hepft_static:+.2f}%")
+        print(f"  HEPFT Dynamic improvement over HEFT : {pct_hepft_dynamic:+.2f}%")
+        print(f"  Reactive      improvement over HEFT : {pct_react:+.2f}%")
 
         summary_rows.append({
-            'name':          tc['name'],
-            'vol':           vol,
-            'heft':          ms_sim_heft,
-            'cpop':          ms_sim_cpop,
-            'hepft':         ms_sim_hepft,
-            'hepft_v':       ms_sim_hepft_v,
-            'reactive':      ms_sim_reactive,
-            'oracle':        oracle_makespan,
-            'oracle_method': oracle_method,
+            'name':           tc['name'],
+            'vol':            vol,
+            'heft':           ms_sim_heft,
+            'hepft_static':   ms_sim_hepftStatic,
+            'hepft_dynamic':  ms_sim_hepftDynamic,
+            'reactive':       ms_sim_reactive,
         })
 
     # ── cross-case summary ──────────────────────────────────────────────────
@@ -229,8 +217,11 @@ def main():
         print(f"\n{'='*82}")
         print("  Cross-Case Summary  (simulated makespans, * = best per row)")
         print(f"{'='*82}")
-        print(f"  {'Test Case':<38} {'Vol':>5}  {'HEFT':>7}  {'CPOP':>7}  "
-              f"{'HEPFT':>7}  {'H-Vol':>7}  {'React':>7}  {'Oracle':>8}")
+        print(
+            f"  {'Test Case':<38} {'Vol':>5} "
+            f"{'HEFT':>7} {'H-Static':>9} {'H-Dynamic':>10} "
+            f"{'React':>7} {'Oracle':>8}"
+        )
         print(f"  {'-'*79}")
         for r in summary_rows:
             best = min(r['heft'], r['cpop'], r['hepft'], r['hepft_v'], r['reactive'])
@@ -243,7 +234,7 @@ def main():
                   f"{r['oracle']:6.1f}({r['oracle_method'][:3]})")
 
         # Trend: HEPFT and HEPFT-Vol improvement vs volatility
-        for label, key in [("HEPFT", "hepft"), ("HEPFT-Vol", "hepft_v")]:
+        for label, key in [ ("HEPFT Static", "hepft_static"), ("HEPFT Dynamic", "hepft_dynamic"),]:
             print(f"\n{'─'*65}")
             print(f"  {label} improvement over HEFT  vs  Network Volatility")
             print(f"{'─'*65}")
