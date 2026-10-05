@@ -26,16 +26,6 @@ class DynamicNetwork:
         return self.snapshots[idx][1]
 
     def proc_volatility(self, proc_id: int) -> float:
-        """
-        Measure how volatile a processor's links are across all snapshots.
-        Returns a score between 0.0 (perfectly stable) and higher values
-        meaning more volatile.
-
-        Method: for each link involving this processor, compute the
-        coefficient of variation (std / mean) of bandwidth across snapshots.
-        Average that across all links.
-        """
-        # collect bandwidth values per link involving this processor
         link_values: dict[tuple, list[float]] = {}
 
         for _, net in self.snapshots:
@@ -47,7 +37,7 @@ class DynamicNetwork:
                     link_values[key].append(bw)
 
         if not link_values:
-            return float('inf')  # never appeared in any snapshot = maximally unreliable
+            return float('inf')
 
         cv_scores = []
         for values in link_values.values():
@@ -60,28 +50,102 @@ class DynamicNetwork:
                 continue
             variance = sum((v - mean) ** 2 for v in values) / len(values)
             std = variance ** 0.5
-            cv_scores.append(std / mean)   # coefficient of variation
+            cv_scores.append(std / mean)
 
         return sum(cv_scores) / len(cv_scores)
+
     def next_snapshot_time(self, t: float) -> float:
-        """
-        Returns the timestamp of the next snapshot strictly after time t.
-        Returns float('inf') if there are no snapshots after t.
-        """
         idx = bisect.bisect_right(self.timestamps, t)
         if idx >= len(self.snapshots):
             return float('inf')
         return self.snapshots[idx][0]
 
-    def proc_availability(self, proc_id: int) -> float:
+    def proc_availability(self, proc_id: int) -> dict[float, float]:
         """
-        Returns the fraction of snapshots in which this processor was present.
-        1.0 = always available, 0.0 = never available.
+        Returns a dict of {up_time: down_time} representing every interval
+        during which proc_id was online.
+
+        key   = timestamp when the processor came back up (or first appeared)
+        value = timestamp when the processor next went down (or the horizon
+                if it never went down again)
+
+        Example:
+            {0.0: 28.3, 41.7: 95.2}
+            means the processor was up from t=0   to t=28.3
+            then  up again      from t=41.7 to t=95.2
+
+        An empty dict means the processor never appeared in any snapshot.
         """
         if not self.snapshots:
+            return {}
+
+        intervals: dict[float, float] = {}
+        up_since: float | None = None
+
+        for ts, net in self.snapshots:
+            is_up = net.has_processor(proc_id)
+
+            if is_up and up_since is None:
+                # processor just came online — open a new interval
+                up_since = ts
+
+            elif not is_up and up_since is not None:
+                # processor just went offline — close the interval
+                intervals[up_since] = ts
+                up_since = None
+
+        # if still up at the last known snapshot, close against the horizon
+        if up_since is not None:
+            intervals[up_since] = self.timestamps[-1]
+
+        return intervals
+
+    def proc_up_at_time(self, proc_id: int, t: float) -> bool:
+        """
+        Query whether proc_id is up at time t using the availability intervals.
+        Returns False if the processor never appeared or t is outside all intervals.
+        """
+        intervals = self.proc_availability(proc_id)
+        return any(up <= t < down for up, down in intervals.items())
+
+    def next_online_time(self, proc_id: int, t: float) -> float:
+        """
+        When does proc_id next become available after time t?
+        Returns float('inf') if the processor never comes back within the horizon.
+        """
+        intervals = self.proc_availability(proc_id)
+        future = [up for up in intervals if up > t]
+        if not future:
+            return float('inf')
+        return min(future)
+
+    def comm_cost_integrated(self, src_proc, dst_proc, data_size, t_start) -> float:
+        """Compute actual transfer time accounting for bandwidth changes."""
+        if src_proc == dst_proc:
             return 0.0
-        present = sum(
-            1 for _, net in self.snapshots
-            if proc_id in net.processors
-        )
-        return present / len(self.snapshots)
+
+        remaining = data_size
+        t = t_start
+
+        while remaining > 1e-9:
+            net = self.pred_net_func(t)
+
+            if (src_proc, dst_proc) not in net.bandwidth:
+                return float('inf')
+
+            bw = net.bandwidth[(src_proc, dst_proc)]
+            if bw <= 0:
+                return float('inf')
+
+            time_to_finish = remaining / bw
+            next_change    = self.next_snapshot_time(t)
+
+            if next_change == float('inf') or next_change >= t + time_to_finish:
+                t        += time_to_finish
+                remaining = 0.0
+            else:
+                interval   = next_change - t
+                remaining -= bw * interval
+                t          = next_change
+
+        return t - t_start
