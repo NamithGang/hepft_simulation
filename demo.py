@@ -232,7 +232,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(80, 120),
                 recovery_interval=(5, 10),
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.6,
             "availability_threshold": 0.6,
         },
@@ -249,7 +249,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(80, 120),
                 recovery_interval=(5, 10),
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.6,
             "availability_threshold": 0.6,
         },
@@ -266,7 +266,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(20, 40),
                 recovery_interval=(10, 20),
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.5,
             "availability_threshold": 0.7,
         },
@@ -283,7 +283,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(10, 20),
                 recovery_interval=(10, 25),
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.5,
             "availability_threshold": 0.7,
         },
@@ -300,7 +300,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(10, 20),
                 recovery_interval=(10, 30),
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.5,
             "availability_threshold": 0.7,
         },
@@ -318,7 +318,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(10, 30),
                 enable_correlated_failures=True,
                 cluster_size=3
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.45,
             "availability_threshold": 0.75,
         },
@@ -336,7 +336,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(10, 30),
                 enable_correlated_failures=True,
                 cluster_size=4
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.45,
             "availability_threshold": 0.75,
         },
@@ -354,7 +354,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(15, 30),
                 enable_correlated_failures=True,
                 cluster_size=4
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.4,
             "availability_threshold": 0.8,
         },
@@ -372,7 +372,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(15, 30),
                 enable_correlated_failures=True,
                 cluster_size=6
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.4,
             "availability_threshold": 0.8,
         },
@@ -390,7 +390,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(15, 30),
                 enable_correlated_failures=True,
                 cluster_size=8                   # half the cluster goes down at once
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.35,
             "availability_threshold": 0.85,
         },
@@ -409,7 +409,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(5, 10),
                 recovery_interval=(1, 3),
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.3,
             "availability_threshold": 0.85,
         },
@@ -428,7 +428,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(5, 8),
                 recovery_interval=(40, 80),      # very long outages
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.3,
             "availability_threshold": 0.9,
         },
@@ -448,7 +448,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(20, 40),
                 enable_correlated_failures=True,
                 cluster_size=10                  # 10 of 16 go down together
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.25,
             "availability_threshold": 0.9,
         },
@@ -467,7 +467,7 @@ def get_test_cases() -> list[dict]:
                 failure_interval=(15, 25),
                 recovery_interval=(5, 10),
                 enable_correlated_failures=False
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.25,
             "availability_threshold": 0.85,
         },
@@ -487,7 +487,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(10, 20),
                 enable_correlated_failures=True,
                 cluster_size=6
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.25,
             "availability_threshold": 0.9,
         },
@@ -507,7 +507,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(2, 4),        # recover quickly → many cycles
                 enable_correlated_failures=True,
                 cluster_size=4
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.25,
             "availability_threshold": 0.9,
         },
@@ -527,7 +527,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(15, 30),
                 enable_correlated_failures=True,
                 cluster_size=8                   # entire second cluster goes down
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.2,
             "availability_threshold": 0.9,
         },
@@ -547,7 +547,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(1, 2),        # short outages, very frequent
                 enable_correlated_failures=True,
                 cluster_size=5
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.2,
             "availability_threshold": 0.9,
         },
@@ -567,7 +567,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(20, 50),      # long recovery + frequent fail
                 enable_correlated_failures=True,
                 cluster_size=12                  # 12 of 16 go down together
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.2,
             "availability_threshold": 0.95,
         },
@@ -588,7 +588,7 @@ def get_test_cases() -> list[dict]:
                 recovery_interval=(30, 60),      # very long outages
                 enable_correlated_failures=True,
                 cluster_size=14                  # almost all procs go down
-            ).run(until=200.0),
+            ).run(until=700),
             "volatility_threshold": 0.15,
             "availability_threshold": 0.95,
         },
@@ -601,7 +601,7 @@ def get_test_cases() -> list[dict]:
 
 def create_dynamic_network(base_network: NetworkGraph) -> DynamicNetwork:
     sim = WorkflowSimNetwork(base_network, seed=42)
-    return sim.run(until=200.0)
+    return sim.run(until=700)
 
 # ─────────────────────────────────────────────
 # Small fixed test case — 8 tasks, 8 processors
@@ -676,7 +676,7 @@ def create_test_case() -> dict:
         failure_interval=(30, 60),
         recovery_interval=(5, 15),
         enable_correlated_failures=False,
-    ).run(until=200.0)
+    ).run(until=700)
 
     return {
         "name": "Small fixed 8-task DAG on 8 processors",

@@ -224,14 +224,13 @@ def main():
         )
         print(f"  {'-'*79}")
         for r in summary_rows:
-            best = min(r['heft'], r['cpop'], r['hepft'], r['hepft_v'], r['reactive'])
+            best = min(r['heft'], r['hepft_static'], r['hepft_dynamic'], r['reactive'])
             def fmt(v):
                 mark = '*' if abs(v - best) < 0.05 else ' '
                 return f"{v:7.1f}{mark}"
             print(f"  {r['name']:<38} {r['vol']:5.3f}  "
-                  f"{fmt(r['heft'])}  {fmt(r['cpop'])}  {fmt(r['hepft'])}  "
-                  f"{fmt(r['hepft_v'])}  {fmt(r['reactive'])}  "
-                  f"{r['oracle']:6.1f}({r['oracle_method'][:3]})")
+                  f"{fmt(r['heft'])}  {fmt(r['hepft_static'])}  "
+                  f"{fmt(r['hepft_dynamic'])}  {fmt(r['reactive'])}  ")
 
         # Trend: HEPFT and HEPFT-Vol improvement vs volatility
         for label, key in [ ("HEPFT Static", "hepft_static"), ("HEPFT Dynamic", "hepft_dynamic"),]:
