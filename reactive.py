@@ -3,11 +3,10 @@ from __future__ import annotations
 from make_dag        import TaskDAG, Task
 from make_network    import NetworkGraph, Processor
 from dynamic_network import DynamicNetwork
-from heft            import calc_heft
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Original helpers (unchanged)
+# Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _sub_dag(dag: TaskDAG, remaining: set[int]) -> TaskDAG:
@@ -22,111 +21,106 @@ def _sub_dag(dag: TaskDAG, remaining: set[int]) -> TaskDAG:
     return sub
 
 
-def _rebase(
-    raw:        dict[int, tuple],
-    sub:        TaskDAG,
-    orig_dag:   TaskDAG,
-    fixed:      dict[int, tuple],
-    snapshot:   NetworkGraph,
-    event_time: float,
-) -> dict[int, tuple]:
+def _comm(
+    network:     NetworkGraph,
+    dynamic_net: DynamicNetwork | None,
+    parent_proc: int,
+    proc_id:     int,
+    data_size:   float,
+    parent_eft:  float,
+) -> float:
     """
-    Shift calc_heft's zero-based times forward so that:
-      1. Nothing starts before event_time.
-      2. Each task whose parent is committed starts after
-         parent_finish + comm_cost.
-      3. Each task whose parent is in the sub-DAG starts after
-         that parent's (rebased) finish.
+    Communication cost for sending `data_size` from parent_proc to proc_id,
+    starting when the parent finishes (parent_eft, absolute time).
+
+    Matches hepft.py: when a DynamicNetwork is available the cost is
+    integrated over the changing bandwidth snapshots; otherwise it falls back
+    to the static comm_cost of `network`.
     """
-    topo    = list(reversed(sub._topological_sort()))  # roots first
-    rebased: dict[int, tuple] = {}
-
-    for tid in topo:
-        proc_id, raw_start, raw_finish = raw[tid]
-        duration = raw_finish - raw_start
-        floor    = event_time
-
-        # Cross-boundary: parent is a committed (fixed) task
-        for parent_id in orig_dag.nodes[tid].parents:
-            if parent_id in fixed:
-                parent_proc, _, parent_finish = fixed[parent_id]
-                data_size = orig_dag.edges[(parent_id, tid)]
-                comm = snapshot.comm_cost(parent_proc, proc_id, data_size,
-                                          fallback_bandwidth=None)
-                if comm == float('inf'):
-                    comm = 0.0
-                floor = max(floor, parent_finish + comm)
-
-        # Intra-sub-DAG: parent is also being rebased
-        for parent_id in sub.nodes[tid].parents:
-            if parent_id in rebased:
-                floor = max(floor, rebased[parent_id][2])
-
-        new_start    = max(raw_start, floor)
-        rebased[tid] = (proc_id, new_start, new_start + duration)
-
-    return rebased
+    if dynamic_net is not None:
+        return dynamic_net.comm_cost_integrated(
+            parent_proc, proc_id, data_size, parent_eft
+        )
+    return network.comm_cost(parent_proc, proc_id, data_size)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# HEFT re-run that captures per-decision EFT values for the trace
+# HEFT pass in absolute time with integrated comm costs
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _heft_instrumented(
+def _heft_integrated(
     dag:           TaskDAG,
     network:       NetworkGraph,
+    dynamic_net:   DynamicNetwork | None,
     pre_committed: dict[int, tuple],
     orig_dag:      TaskDAG,
+    event_time:    float,
 ) -> tuple[dict[int, tuple], list[dict]]:
     """
-    Runs the HEFT scheduling loop and records, for every task, the exact EFT
+    Runs the HEFT scheduling loop on `dag` using the processors in `network`
+    (the snapshot at event_time), and records, for every task, the EFT
     computed for every processor at the moment of decision.
 
+    Unlike plain calc_heft, all times are ABSOLUTE (wall-clock):
+      * processors become available at event_time, not 0;
+      * parent finish times are real finish times;
+    so dynamic_net.comm_cost_integrated() is evaluated over the correct
+    window of bandwidth snapshots — the same way calc_hepft does it.
+    Because of that, no rebasing step is needed afterwards.
+
     pre_committed  — tasks already locked in from previous events; used to
-                     compute cross-boundary communication costs correctly.
+                     compute cross-boundary communication costs.
     orig_dag       — the full DAG; needed to look up edges that cross the
                      sub-DAG boundary.
 
     Returns
     -------
-    schedule  : {task_id: (proc_id, start, finish)}  (zero-based times)
+    schedule  : {task_id: (proc_id, start, finish)}  (absolute times)
     decisions : list of dicts, one per task in scheduling order:
                   task_id, eft_per_proc {proc_id: eft}, chosen_proc, chosen_eft
     """
     ranks        = dag.compute_ranks(network)
     sorted_tasks = sorted(ranks.keys(), key=lambda t: ranks[t], reverse=True)
 
-    schedule:      dict[int, tuple] = {}
-    proc_available = {p: 0.0 for p in network.processors}
-    decisions:     list[dict] = []
+    schedule:       dict[int, tuple] = {}
+    proc_available: dict[int, float] = {p: event_time for p in network.processors}
+    decisions:      list[dict]       = []
+
+    def parent_entries(task_id: int):
+        """Yield (parent_proc, parent_eft, data_size) for every scheduled parent."""
+        # Parents inside this (sub-)DAG
+        for parent_id in dag.nodes[task_id].parents:
+            if parent_id in schedule:
+                parent_proc, _, parent_eft = schedule[parent_id]
+                yield parent_proc, parent_eft, dag.edges[(parent_id, task_id)]
+        # Parents committed in a prior event (cross-boundary)
+        for parent_id in orig_dag.nodes[task_id].parents:
+            if parent_id in pre_committed and parent_id not in schedule:
+                parent_proc, _, parent_eft = pre_committed[parent_id]
+                yield parent_proc, parent_eft, orig_dag.edges[(parent_id, task_id)]
 
     for task_id in sorted_tasks:
         task = dag.nodes[task_id]
 
         best_proc: int | None = None
-        best_est:  float      = 0.0
+        best_est:  float      = event_time
         best_eft:  float      = float('inf')
         eft_per_proc: dict[int, float] = {}
 
         for proc_id in network.processors:
-            ready_time = 0.0
+            ready_time = event_time
+            reachable  = True
 
-            # Parents inside this (sub-)DAG
-            for parent_id in task.parents:
-                if parent_id in schedule:
-                    parent_proc, _, parent_eft = schedule[parent_id]
-                    data_size  = dag.edges[(parent_id, task_id)]
-                    comm       = network.comm_cost(parent_proc, proc_id, data_size)
-                    ready_time = max(ready_time, parent_eft + comm)
+            for parent_proc, parent_eft, data_size in parent_entries(task_id):
+                comm = _comm(network, dynamic_net,
+                             parent_proc, proc_id, data_size, parent_eft)
+                if comm == float('inf'):
+                    reachable = False        # no path for this data
+                    break
+                ready_time = max(ready_time, parent_eft + comm)
 
-            # Parents committed in a prior event (cross-boundary)
-            orig_parents = orig_dag.nodes[task_id].parents if orig_dag is not None else []
-            for parent_id in orig_parents:
-                if parent_id in pre_committed and parent_id not in schedule:
-                    parent_proc, _, parent_eft = pre_committed[parent_id]
-                    data_size  = orig_dag.edges[(parent_id, task_id)]
-                    comm       = network.comm_cost(parent_proc, proc_id, data_size)
-                    ready_time = max(ready_time, parent_eft + comm)
+            if not reachable:
+                continue                     # shown as "unavailable" in trace
 
             est = max(ready_time, proc_available[proc_id])
             eft = est + task.comp_costs[proc_id]
@@ -134,6 +128,23 @@ def _heft_instrumented(
 
             if eft < best_eft:
                 best_eft, best_est, best_proc = eft, est, proc_id
+
+        # Fallback: every processor was unreachable from some parent.
+        # Use the snapshot's static cost and treat a missing link as 0,
+        # which matches the behaviour of the original _rebase().
+        if best_proc is None:
+            for proc_id in network.processors:
+                ready_time = event_time
+                for parent_proc, parent_eft, data_size in parent_entries(task_id):
+                    comm = network.comm_cost(parent_proc, proc_id, data_size)
+                    if comm == float('inf'):
+                        comm = 0.0
+                    ready_time = max(ready_time, parent_eft + comm)
+                est = max(ready_time, proc_available[proc_id])
+                eft = est + task.comp_costs[proc_id]
+                eft_per_proc[proc_id] = eft
+                if eft < best_eft:
+                    best_eft, best_est, best_proc = eft, est, proc_id
 
         schedule[task_id]         = (best_proc, best_est, best_eft)
         proc_available[best_proc] = best_eft
@@ -214,7 +225,7 @@ def _write_trace(
         else:
             for dec in decisions:
                 task_id      = dec['task_id']
-                eft_per_proc = dec['eft_per_proc']   # {proc_id: rebased_eft}
+                eft_per_proc = dec['eft_per_proc']   # {proc_id: absolute eft}
                 chosen_proc  = dec['chosen_proc']
                 chosen_eft   = dec['chosen_eft']
 
@@ -239,8 +250,8 @@ def _write_trace(
         log('-' * 16)
         by_proc: dict[int, list[str]] = {p: [] for p in sorted(network.processors.keys())}
         for tid, (pid, s, e) in sorted(committed.items(), key=lambda x: x[1][1]):
-            by_proc[pid].append(f'T{tid}[{s:.1f}-{e:.1f}]')
-        for pid in sorted(network.processors.keys()):
+            by_proc.setdefault(pid, []).append(f'T{tid}[{s:.1f}-{e:.1f}]')
+        for pid in sorted(by_proc.keys()):
             slot = '  '.join(by_proc[pid]) if by_proc[pid] else ''
             log(f'P{pid + 1} : {slot}')
 
@@ -251,8 +262,8 @@ def _write_trace(
     log(SEP)
     by_proc = {p: [] for p in sorted(network.processors.keys())}
     for tid, (pid, s, e) in sorted(final.items(), key=lambda x: x[1][1]):
-        by_proc[pid].append(f'T{tid}[{s:.1f}-{e:.1f}]')
-    for pid in sorted(network.processors.keys()):
+        by_proc.setdefault(pid, []).append(f'T{tid}[{s:.1f}-{e:.1f}]')
+    for pid in sorted(by_proc.keys()):
         slot = '  '.join(by_proc[pid]) if by_proc[pid] else '(idle)'
         log(f'P{pid + 1} : {slot}')
 
@@ -276,8 +287,14 @@ def simulate_reactive(
     trace_file:  str | None = None,
 ) -> dict[int, tuple]:
     """
-    Event-driven reactive scheduler.  Calls calc_heft() from scratch
-    on remaining tasks at every processor topology change.
+    Event-driven reactive scheduler.  Re-runs HEFT from scratch on the
+    remaining tasks at every processor topology change.
+
+    Communication costs use dynamic_net.comm_cost_integrated(), evaluated
+    from each parent's actual finish time — the same cost model as
+    calc_hepft in dynamic mode — so the two schedulers are compared on
+    equal terms.  Scheduling is done directly in absolute time, so the
+    old zero-based calc_heft + _rebase step is no longer needed.
 
     If trace_file is given, writes a step-by-step HEFT-style trace showing
     the upward-rank order, per-processor EFT at the moment of every decision,
@@ -296,13 +313,14 @@ def simulate_reactive(
             topology_events.append(ts)
             prev_procs = curr_procs
 
-    # ── Initial plan ──────────────────────────────────────────────────────
+    # ── Initial plan (t = 0, base network, integrated comm costs) ─────────
     event_log: list[dict] = []
 
+    current_plan, dec_init = _heft_integrated(
+        dag, network, dynamic_net, {}, dag, event_time=0.0
+    )
+
     if do_trace:
-        raw_init, dec_init = _heft_instrumented(dag, network, {}, dag)
-        current_plan: dict[int, tuple] = raw_init
-        # Initial plan: EFTs are already wall-clock (start at 0), no rebase needed
         event_log.append({
             'step':             0,
             'event_time':       0.0,
@@ -313,8 +331,6 @@ def simulate_reactive(
             'lost_procs':       set(),
             'gained_procs':     set(),
         })
-    else:
-        current_plan = calc_heft(dag, network)
 
     actual: dict[int, tuple] = {}
     prev_proc_set = set(network.processors.keys())
@@ -336,41 +352,16 @@ def simulate_reactive(
 
         sub = _sub_dag(dag, remaining)
 
-        if do_trace:
-            raw, decisions = _heft_instrumented(sub, snapshot, actual, dag)
-        else:
-            raw       = calc_heft(sub, snapshot)
-            decisions = []
-
-        shifted      = _rebase(raw, sub, dag, actual, snapshot, event_time)
-        current_plan = {**actual, **shifted}
+        replanned, decisions = _heft_integrated(
+            sub, snapshot, dynamic_net, actual, dag, event_time=event_time
+        )
+        current_plan = {**actual, **replanned}
 
         if do_trace:
-            # Rebase each decision's EFTs by the same shift applied to that task.
-            # All processors in a task's evaluation shift by the same delta because
-            # the rebase floor (event_time + comm from committed parents) is
-            # proc-independent for the winning processor; we apply the winner's
-            # shift uniformly so the table stays internally consistent.
-            rebased_decisions = []
-            for dec in decisions:
-                tid = dec['task_id']
-                if tid in shifted:
-                    _, _, rebased_finish = shifted[tid]
-                    _, _, raw_finish     = raw[tid]
-                    shift = rebased_finish - raw_finish
-                    rebased_decisions.append({
-                        'task_id':      tid,
-                        'eft_per_proc': {pid: e + shift for pid, e in dec['eft_per_proc'].items()},
-                        'chosen_proc':  dec['chosen_proc'],
-                        'chosen_eft':   rebased_finish,
-                    })
-                else:
-                    rebased_decisions.append(dec)
-
             event_log.append({
                 'step':             event_idx,
                 'event_time':       event_time,
-                'decisions':        rebased_decisions,
+                'decisions':        decisions,
                 'committed_so_far': dict(current_plan),
                 'locked':           set(actual.keys()),
                 'active_procs':     curr_proc_set,
