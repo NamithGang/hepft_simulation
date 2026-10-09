@@ -26,33 +26,25 @@ class DynamicNetwork:
         return self.snapshots[idx][1]
 
     def proc_volatility(self, proc_id: int) -> float:
-        link_values: dict[tuple, list[float]] = {}
+        """
+        Volatility score = total time the processor is up / number of up periods.
 
-        for _, net in self.snapshots:
-            for (src, dst), bw in net.bandwidth.items():
-                if src == proc_id or dst == proc_id:
-                    key = (src, dst)
-                    if key not in link_values:
-                        link_values[key] = []
-                    link_values[key].append(bw)
+        A processor that stays up for one long continuous stretch scores high
+        (stable). A processor that flickers up and down many times scores low
+        (volatile) because the same total uptime is divided across many periods.
 
-        if not link_values:
-            return float('inf')
+        Lower score = more volatile.
+        Returns 0.0 if the processor never appears in any snapshot.
+        """
+        intervals = self.proc_availability(proc_id)
 
-        cv_scores = []
-        for values in link_values.values():
-            if len(values) < 2:
-                cv_scores.append(0.0)
-                continue
-            mean = sum(values) / len(values)
-            if mean == 0:
-                cv_scores.append(float('inf'))
-                continue
-            variance = sum((v - mean) ** 2 for v in values) / len(values)
-            std = variance ** 0.5
-            cv_scores.append(std / mean)
+        if not intervals:
+            return 0.0   # never appeared — maximally volatile
 
-        return sum(cv_scores) / len(cv_scores)
+        total_uptime  = sum(down - up for up, down in intervals.items())
+        num_periods   = len(intervals)
+
+        return total_uptime / num_periods
 
     def next_snapshot_time(self, t: float) -> float:
         idx = bisect.bisect_right(self.timestamps, t)
