@@ -4,7 +4,6 @@ from demo import create_dag, create_network, create_dynamic_network
 from dynamic_network import DynamicNetwork
 from heft import calc_heft
 from hepft import calc_hepft
-from hepft_vol import calc_hepft_vol
 from reactive import simulate_reactive
 from oracle_ilp import calc_oracle_ilp
 
