@@ -162,9 +162,8 @@ def _compute_est(
         data_size = dag.edges[(parent_id, task_id)]
 
         if is_dynamic:
-            comm = dynamic_net.pred_net_func(parent_eft).comm_cost_integrated(
-                parent_proc, proc_id, data_size, parent_eft, dynamic_net,
-                fallback_bandwidth=network.bandwidth
+            comm = dynamic_net.comm_cost_integrated(
+                parent_proc, proc_id, data_size, parent_eft
             )
         else:
             comm = network.comm_cost(
