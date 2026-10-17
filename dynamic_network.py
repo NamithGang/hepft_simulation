@@ -112,7 +112,13 @@ class DynamicNetwork:
         return min(future)
 
     def comm_cost_integrated(self, src_proc, dst_proc, data_size, t_start) -> float:
-        """Compute actual transfer time accounting for bandwidth changes."""
+        """
+        Compute actual transfer time accounting for bandwidth changes.
+
+        If the link is missing (one end is offline) the transfer PAUSES until
+        the link comes back, then continues. Returns inf only if the link
+        never comes back.
+        """
         if src_proc == dst_proc:
             return 0.0
 
@@ -120,24 +126,21 @@ class DynamicNetwork:
         t = t_start
 
         while remaining > 1e-9:
-            net = self.pred_net_func(t)
+            bw          = self.pred_net_func(t).bandwidth.get((src_proc, dst_proc), 0)
+            next_change = self.next_snapshot_time(t)
 
-            if (src_proc, dst_proc) not in net.bandwidth:
-                return float('inf')
-
-            bw = net.bandwidth[(src_proc, dst_proc)]
-            if bw <= 0:
-                return float('inf')
+            if bw <= 0:                                   # link down: wait for it
+                if next_change == float('inf'):
+                    return float('inf')
+                t = next_change
+                continue
 
             time_to_finish = remaining / bw
-            next_change    = self.next_snapshot_time(t)
-
             if next_change == float('inf') or next_change >= t + time_to_finish:
                 t        += time_to_finish
                 remaining = 0.0
             else:
-                interval   = next_change - t
-                remaining -= bw * interval
+                remaining -= bw * (next_change - t)
                 t          = next_change
 
         return t - t_start

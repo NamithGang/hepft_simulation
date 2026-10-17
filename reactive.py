@@ -7,6 +7,13 @@ from dynamic_network import DynamicNetwork
 INF = float('inf')
 
 
+class SchedulingError(RuntimeError):
+    """Raised when tasks can't be placed. .issues = {task_id: reason}."""
+    def __init__(self, message: str, issues: dict[int, str]):
+        super().__init__(message)
+        self.issues = issues
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # HEFT on the CURRENT snapshot, continuing from what has already happened
 # ─────────────────────────────────────────────────────────────────────────────
@@ -103,7 +110,8 @@ def simulate_reactive(
            finished (finish <= t)                       -> kept
            running  (start < t < finish), proc present -> kept; proc busy
            running  on a processor that left           -> KILLED, re-planned
-           finished on a processor that left, while a child hasn't started
+           finished on a processor that left, when a child that hasn't
+           started has no current processor all its input data can reach
                                                         -> output LOST, re-run
            not started (start >= t)                     -> re-planned
       2. Run HEFT on everything that isn't kept, using only the current
@@ -113,7 +121,8 @@ def simulate_reactive(
     change the network is fixed, so the current plan runs as written.
 
     Returns {task_id: (proc_id, start, finish)} — the run that completed.
-    Raises RuntimeError if some task can never be placed (no fallback).
+    Raises SchedulingError (a RuntimeError) if some task can never be
+    placed (no fallback); its .issues maps each task to the reason.
     """
     events = sorted({0.0} | {ts for ts, _ in dynamic_net.snapshots if ts >= 0})
 
@@ -139,19 +148,35 @@ def simulate_reactive(
                 else:
                     killed.append(tid)
 
-        # Output lost: finished on a processor that left while some child
-        # still needs its data. Repeat, since re-running a task can make its
-        # own parents' outputs needed again.
+        # Output lost: a task that hasn't started needs data from its kept
+        # parents, but there is no current processor that ALL of that data
+        # can reach (comm_cost_integrated is infinite for at least one
+        # parent). Its parents that finished on a processor that has left are
+        # re-run. Repeat, since re-running a task can make its own parents'
+        # outputs needed again.
+        def has_target(child: int) -> bool:
+            kept = [p for p in dag.nodes[child].parents if p in fixed]
+            return any(
+                q in dag.nodes[child].comp_costs and all(
+                    dynamic_net.comm_cost_integrated(
+                        fixed[p][0], q, dag.edges[(p, child)], fixed[p][2]) != INF
+                    for p in kept)
+                for q in present)
+
         lost: list[int] = []
         changed = True
         while changed:
             changed = False
-            for tid, (proc, start, finish) in list(fixed.items()):
-                if finish <= now and proc not in present and any(
-                        c not in fixed for c in dag.nodes[tid].children):
-                    del fixed[tid]
-                    lost.append(tid)
-                    changed = True
+            for child in dag.nodes:
+                if child in fixed or not any(p in fixed for p in dag.nodes[child].parents):
+                    continue
+                if has_target(child):
+                    continue
+                for p in dag.nodes[child].parents:
+                    if p in fixed and fixed[p][2] <= now and fixed[p][0] not in present:
+                        del fixed[p]
+                        lost.append(p)
+                        changed = True
 
         # ── 2. re-plan everything else on the current snapshot ───────────
         remaining = set(dag.nodes) - set(fixed)
@@ -181,7 +206,8 @@ def simulate_reactive(
 
     if unplaced:
         details = '; '.join(f"T{t}: {why}" for t, why in sorted(unplaced.items())[:5])
-        raise RuntimeError(
-            f"{len(unplaced)} task(s) could not be placed after the last network change ({details})")
+        raise SchedulingError(
+            f"{len(unplaced)} task(s) could not be placed after the last network change ({details})",
+            dict(unplaced))
 
     return plan

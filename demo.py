@@ -195,6 +195,12 @@ class WorkflowSimNetwork:
         for t, net in sorted(self.snapshots):
             if t > 0:
                 dyn.add_snapshot(t, net)
+
+        # The simulation stops at `until`, so outages that started near the
+        # end never had their recovery recorded and would look permanent.
+        # Every failure in this model recovers, so restore all processors
+        # (base network) at the horizon.
+        dyn.add_snapshot(until, self.base_network)
         return dyn
 
 
