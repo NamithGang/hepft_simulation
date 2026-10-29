@@ -1,7 +1,11 @@
+"""
+A fixed (static) network: a set of processors and the bandwidth of each
+directed link between them. DynamicNetwork stores one of these per snapshot.
+"""
 class NetworkGraph:
     def __init__(self):
-        self.processors = {}
-        self.bandwidth = {}
+        self.processors = {} # proc_id -> Processor
+        self.bandwidth = {} # (src, dst) -> data per time unit
         self.latency = {}
 
     def has_processor(self, processor):
@@ -9,7 +13,11 @@ class NetworkGraph:
   
     def processor_list(self):
         return self.processors
-    
+
+    """
+        Send `data_size` from src_proc to dst_proc at this network's
+        bandwidth. Same processor = 0 (no transfer); no link = inf.
+    """
     def comm_cost(self, src_proc, dst_proc, data_size, fallback_bandwidth=None) -> float:
         if src_proc == dst_proc:
             return 0.0

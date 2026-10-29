@@ -28,11 +28,11 @@ class DynamicNetwork:
     def proc_volatility(self, proc_id: int) -> float:
         """
         Volatility score = total time the processor is up / number of up periods.
-
+ 
         A processor that stays up for one long continuous stretch scores high
         (stable). A processor that flickers up and down many times scores low
         (volatile) because the same total uptime is divided across many periods.
-
+ 
         Lower score = more volatile.
         Returns 0.0 if the processor never appears in any snapshot.
         """
