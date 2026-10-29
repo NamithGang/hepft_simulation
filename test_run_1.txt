@@ -1,0 +1,837 @@
+momo@Namiths-MacBook-Air hepft_pt2 %  source /Users/momo/Documents/hepft_pt2/.venv/bin/activate
+(.venv) momo@Namiths-MacBook-Air hepft_pt2 % clear
+(.venv) momo@Namiths-MacBook-Air hepft_pt2 % python3 run_demo.py                              
+
+=================================================================
+  TC1: small sparse stable (8 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                  71.92
+  HEPFT Static          71.92
+  HEPFT Dynamic         71.64
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                  71.64      0.9961
+  HEPFT Static          71.64      0.9961
+  HEPFT Dynamic         71.64      1.0000
+  Reactive              71.64         n/a
+
+  Winner: HEFT = HEPFT Static = HEPFT Dynamic = Reactive  (all tied)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 58.60
+  T_sequential                       : 156.00
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.2226     2.1774
+  HEPFT Static     1.2226     2.1774
+  HEPFT Dynamic    1.2226     2.1774
+  Reactive         1.2226     2.1774
+
+  Mean uptime per up-period (lower = more volatile) : 464.22
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +0.00%
+  Reactive      improvement over HEFT : +0.00%
+
+=================================================================
+  TC2: small dense stable (8 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 153.81
+  HEPFT Static         153.81
+  HEPFT Dynamic        153.44
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 153.74      0.9996
+  HEPFT Static         153.74      0.9996
+  HEPFT Dynamic        153.44      1.0000
+  Reactive             154.87         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up HEFT by 0.31 / 0.2%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 121.37
+  T_sequential                       : 175.10
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.2667     1.1389
+  HEPFT Static     1.2667     1.1389
+  HEPFT Dynamic    1.2642     1.1412
+  Reactive         1.2761     1.1306
+
+  Mean uptime per up-period (lower = more volatile) : 493.36
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +0.20%
+  Reactive      improvement over HEFT : -0.74%
+
+=================================================================
+  TC3: medium moderate fluctuation (8 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 193.09
+  HEPFT Static         193.09
+  HEPFT Dynamic        206.38
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 287.26      1.4877
+  HEPFT Static         287.26      1.4877
+  HEPFT Dynamic        206.38      1.0000
+  Reactive             252.25         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 45.88 / 18.2%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 159.77
+  T_sequential                       : 368.01
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.7980     1.2811
+  HEPFT Static     1.7980     1.2811
+  HEPFT Dynamic    1.2917     1.7832
+  Reactive         1.5788     1.4589
+
+  Mean uptime per up-period (lower = more volatile) : 261.43
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +28.16%
+  Reactive      improvement over HEFT : +12.19%
+
+=================================================================
+  TC4: medium fluctuation + failures (8 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 257.81
+  HEPFT Static         257.81
+  HEPFT Dynamic        295.71
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 391.08      1.5169
+  HEPFT Static         391.08      1.5169
+  HEPFT Dynamic        295.71      1.0000
+  Reactive             316.80         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 21.09 / 6.7%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 206.81
+  T_sequential                       : 319.84
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.8910     0.8178
+  HEPFT Static     1.8910     0.8178
+  HEPFT Dynamic    1.4299     1.0816
+  Reactive         1.5319     1.0096
+
+  Mean uptime per up-period (lower = more volatile) : 248.82
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +24.39%
+  Reactive      improvement over HEFT : +18.99%
+
+=================================================================
+  TC5: medium high fluctuation (12 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 297.08
+  HEPFT Static         297.08
+  HEPFT Dynamic        309.30
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 368.66      1.2409
+  HEPFT Static         368.66      1.2409
+  HEPFT Dynamic        309.30      1.0000
+  Reactive             363.06         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 53.76 / 14.8%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 236.83
+  T_sequential                       : 447.08
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.5567     1.2127
+  HEPFT Static     1.5567     1.2127
+  HEPFT Dynamic    1.3060     1.4455
+  Reactive         1.5330     1.2314
+
+  Mean uptime per up-period (lower = more volatile) : 329.16
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +16.10%
+  Reactive      improvement over HEFT : +1.52%
+
+=================================================================
+  TC6: medium correlated failures (12 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 327.97
+  HEPFT Static         327.97
+  HEPFT Dynamic        344.38
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 456.67      1.3924
+  HEPFT Static         456.67      1.3924
+  HEPFT Dynamic        344.38      1.0000
+  Reactive             555.49         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up HEFT by 112.29 / 24.6%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 268.65
+  T_sequential                       : 513.17
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.6999     1.1237
+  HEPFT Static     1.6999     1.1237
+  HEPFT Dynamic    1.2819     1.4901
+  Reactive         2.0677     0.9238
+
+  Mean uptime per up-period (lower = more volatile) : 120.49
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +24.59%
+  Reactive      improvement over HEFT : -21.64%
+
+=================================================================
+  TC7: large moderate volatility (12 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 328.94
+  HEPFT Static         328.94
+  HEPFT Dynamic        355.34
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 681.57      2.0721
+  HEPFT Static         681.57      2.0721
+  HEPFT Dynamic        355.34      1.0000
+  Reactive             627.36         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 272.01 / 43.4%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 264.65
+  T_sequential                       : 787.94
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             2.5754     1.1561
+  HEPFT Static     2.5754     1.1561
+  HEPFT Dynamic    1.3427     2.2174
+  Reactive         2.3705     1.2560
+
+  Mean uptime per up-period (lower = more volatile) : 84.41
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +47.86%
+  Reactive      improvement over HEFT : +7.95%
+
+=================================================================
+  TC8: large dense high volatility (16 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 527.80
+  HEPFT Static         527.80
+  HEPFT Dynamic        574.08
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 850.93      1.6122
+  HEPFT Static         850.93      1.6122
+  HEPFT Dynamic        574.08      1.0000
+  Reactive             818.45         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 244.37 / 29.9%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 424.20
+  T_sequential                       : 937.30
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             2.0060     1.1015
+  HEPFT Static     2.0060     1.1015
+  HEPFT Dynamic    1.3533     1.6327
+  Reactive         1.9294     1.1452
+
+  Mean uptime per up-period (lower = more volatile) : 142.04
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +32.53%
+  Reactive      improvement over HEFT : +3.82%
+
+=================================================================
+  TC9: large extreme volatility (16 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 525.66
+  HEPFT Static         525.66
+  HEPFT Dynamic        595.75
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 866.66      1.6487
+  HEPFT Static         866.66      1.6487
+  HEPFT Dynamic        595.75      1.0000
+  Reactive             841.92         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 246.17 / 29.2%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 421.22
+  T_sequential                       : 1183.51
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             2.0575     1.3656
+  HEPFT Static     2.0575     1.3656
+  HEPFT Dynamic    1.4143     1.9866
+  Reactive         1.9988     1.4057
+
+  Mean uptime per up-period (lower = more volatile) : 79.13
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +31.26%
+  Reactive      improvement over HEFT : +2.85%
+
+=================================================================
+  TC10: largest dense worst case (16 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 909.44
+  HEPFT Static         909.44
+  HEPFT Dynamic        998.52
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                1269.19      1.3956
+  HEPFT Static        1269.19      1.3956
+  HEPFT Dynamic        998.52      1.0000
+  Reactive            1214.79         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 216.27 / 17.8%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 735.98
+  T_sequential                       : 1576.19
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.7245     1.2419
+  HEPFT Static     1.7245     1.2419
+  HEPFT Dynamic    1.3567     1.5785
+  Reactive         1.6506     1.2975
+
+  Mean uptime per up-period (lower = more volatile) : 65.29
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +21.33%
+  Reactive      improvement over HEFT : +4.29%
+
+=================================================================
+  TC11: rapid bandwidth thrash (8 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 143.19
+  HEPFT Static         143.19
+  HEPFT Dynamic        142.89
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 150.95      1.0542
+  HEPFT Static         150.95      1.0542
+  HEPFT Dynamic        142.89      1.0000
+  Reactive             179.84         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up HEFT by 8.06 / 5.3%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 116.18
+  T_sequential                       : 269.94
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.2993     1.7883
+  HEPFT Static     1.2993     1.7883
+  HEPFT Dynamic    1.2299     1.8891
+  Reactive         1.5479     1.5010
+
+  Mean uptime per up-period (lower = more volatile) : 73.14
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +5.34%
+  Reactive      improvement over HEFT : -19.14%
+
+=================================================================
+  TC12: near-permanent outages (12 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 198.83
+  HEPFT Static         198.83
+  HEPFT Dynamic        283.12
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 501.48      2.5221
+  HEPFT Static         501.48      2.5221
+  HEPFT Dynamic        283.12      1.0000
+  Reactive             451.90         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 168.78 / 37.3%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 153.66
+  T_sequential                       : 396.32
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             3.2636     0.7903
+  HEPFT Static     3.2636     0.7903
+  HEPFT Dynamic    1.8425     1.3998
+  Reactive         2.9409     0.8770
+
+  Mean uptime per up-period (lower = more volatile) : 450.24
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +43.54%
+  Reactive      improvement over HEFT : +9.89%
+
+=================================================================
+  TC13: cascading correlated failures (16 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 324.05
+  HEPFT Static         324.05
+  HEPFT Dynamic        419.61
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 794.45      2.4517
+  HEPFT Static         794.45      2.4517
+  HEPFT Dynamic        419.61      1.0000
+  Reactive             757.40         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 337.79 / 44.6%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 255.95
+  T_sequential                       : 626.79
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             3.1039     0.7890
+  HEPFT Static     3.1039     0.7890
+  HEPFT Dynamic    1.6394     1.4937
+  Reactive         2.9592     0.8276
+
+  Mean uptime per up-period (lower = more volatile) : 37.69
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +47.18%
+  Reactive      improvement over HEFT : +4.66%
+
+=================================================================
+  TC14: extreme bandwidth variance sparse (12 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 159.46
+  HEPFT Static         159.46
+  HEPFT Dynamic        145.19
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 175.79      1.1024
+  HEPFT Static         175.79      1.1024
+  HEPFT Dynamic        145.19      1.0000
+  Reactive             170.31         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 25.13 / 14.8%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 125.90
+  T_sequential                       : 487.30
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.3963     2.7720
+  HEPFT Static     1.3963     2.7720
+  HEPFT Dynamic    1.1532     3.3563
+  Reactive         1.3528     2.8612
+
+  Mean uptime per up-period (lower = more volatile) : 264.95
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +17.41%
+  Reactive      improvement over HEFT : +3.12%
+
+=================================================================
+  TC15: dense DAG extreme churn (16 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 628.79
+  HEPFT Static         628.79
+  HEPFT Dynamic        651.66
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 956.07      1.5205
+  HEPFT Static         956.07      1.5205
+  HEPFT Dynamic        651.66      1.0000
+  Reactive             964.64         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up HEFT by 304.41 / 31.8%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 515.88
+  T_sequential                       : 802.15
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.8533     0.8390
+  HEPFT Static     1.8533     0.8390
+  HEPFT Dynamic    1.2632     1.2309
+  Reactive         1.8699     0.8316
+
+  Mean uptime per up-period (lower = more volatile) : 47.73
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +31.84%
+  Reactive      improvement over HEFT : -0.90%
+
+=================================================================
+  TC16: rolling wave failures (12 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 302.58
+  HEPFT Static         302.58
+  HEPFT Dynamic        327.33
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 428.24      1.4153
+  HEPFT Static         428.24      1.4153
+  HEPFT Dynamic        327.33      1.0000
+  Reactive             524.98         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up HEFT by 100.91 / 23.6%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 235.32
+  T_sequential                       : 538.98
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.8198     1.2586
+  HEPFT Static     1.8198     1.2586
+  HEPFT Dynamic    1.3910     1.6466
+  Reactive         2.2309     1.0267
+
+  Mean uptime per up-period (lower = more volatile) : 22.14
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +23.56%
+  Reactive      improvement over HEFT : -22.59%
+
+=================================================================
+  TC17: asymmetric cluster churn (16 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 464.95
+  HEPFT Static         464.95
+  HEPFT Dynamic        539.34
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 899.17      1.9339
+  HEPFT Static         899.17      1.9339
+  HEPFT Dynamic        539.34      1.0000
+  Reactive             836.40         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up Reactive by 297.07 / 35.5%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 373.37
+  T_sequential                       : 964.08
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             2.4083     1.0722
+  HEPFT Static     2.4083     1.0722
+  HEPFT Dynamic    1.4445     1.7875
+  Reactive         2.2401     1.1527
+
+  Mean uptime per up-period (lower = more volatile) : 37.04
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +40.02%
+  Reactive      improvement over HEFT : +6.98%
+
+=================================================================
+  TC18: micro-burst failures sparse (16 procs)
+=================================================================
+
+  Planning schedules …
+
+─────────────────────────────────────────────────────────────────
+  Planned makespans
+─────────────────────────────────────────────────────────────────
+  Algorithm           Planned
+  ----------------------------
+  HEFT                 434.47
+  HEPFT Static         434.47
+  HEPFT Dynamic        436.90
+  Reactive              (n/a)
+
+─────────────────────────────────────────────────────────────────
+  Simulated makespans (real dynamic network)
+─────────────────────────────────────────────────────────────────
+  Algorithm         Simulated  Robustness
+  --------------------------------------
+  HEFT                 588.27      1.3540
+  HEPFT Static         588.27      1.3540
+  HEPFT Dynamic        436.90      1.0000
+  Reactive             658.24         n/a
+
+  Winner: HEPFT Dynamic  (beats runner-up HEFT by 151.37 / 25.7%)
+
+─────────────────────────────────────────────────────────────────
+  Per-algorithm metrics
+─────────────────────────────────────────────────────────────────
+  CP_min                             : 346.14
+  T_sequential                       : 1255.73
+
+  Algorithm           SLR    Speedup
+  ----------------------------------
+  HEFT             1.6995     2.1346
+  HEPFT Static     1.6995     2.1346
+  HEPFT Dynamic    1.2622     2.8742
+  Reactive         1.9017     1.9077
+
+  Mean uptime per up-period (lower = more volatile) : 16.49
+  HEPFT Static  improvement over HEFT : +0.00%
+  HEPFT Dynamic improvement over HEFT : +25.73%
+  Reactive      improvement over HEFT : -11.89%
+
+=================================================================
+  TC19: maximum procs catastrophic churn (16 procs)
+=================================================================
+
+  Planning schedules …
