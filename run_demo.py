@@ -36,13 +36,14 @@ class IssueLog:
             f.write(f"{case} | {algorithm} | {task} | {issue}\n")
 
 
-def _plan(log: IssueLog, case: str, algorithm: str, fn, *args):
+def _plan(log: IssueLog, case: str, algorithm: str, fn, *args, **kwargs):
     """
-    Run a scheduler. If it raises, log the problem (one line per task when the
-    error carries per-task details) and return None so the run can continue.
+    Run a scheduler: fn(*args, **kwargs). If it raises, log the problem (one
+    line per task when the error carries per-task details) and return None
+    so the run can continue.
     """
     try:
-        return fn(*args)
+        return fn(*args, **kwargs)
     except Exception as e:
         issues = getattr(e, 'issues', None)
         if issues:
@@ -242,9 +243,13 @@ def _run_case(tc: dict, log: IssueLog, summary_rows: list[dict]):
     # ── planned schedules ──────────────────────────────────────────────
     print("\n  Planning schedules …")
     case = tc['name'].split(':')[0]
+    # HEPFT Static takes only HEFT's inputs (it plans on the starting network);
+    # HEPFT Dynamic also gets the dynamic network to plan around.
     sched_heft          = _plan(log, case, "HEFT",          calc_heft,  dag, network)
-    sched_hepftStatic   = _plan(log, case, "HEPFT Static",  calc_hepft, dag, network, dyn, False)
-    sched_hepftDynamic  = _plan(log, case, "HEPFT Dynamic", calc_hepft, dag, network, dyn, True)
+    sched_hepftStatic   = _plan(log, case, "HEPFT Static",  calc_hepft, dag, network,
+                                is_dynamic=False)
+    sched_hepftDynamic  = _plan(log, case, "HEPFT Dynamic", calc_hepft, dag, network,
+                                dynamic_net=dyn, is_dynamic=True)
     sched_reactive      = _plan(log, case, "Reactive",      simulate_reactive, dag, network, dyn)
 
     # ── simulate planned schedules on the real dynamic network ─────────

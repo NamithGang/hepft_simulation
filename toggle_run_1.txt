@@ -1,0 +1,518 @@
+  TC1: small sparse stable (8 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S       71.92      71.64      0.9961
+  Rank dyn           D S S       71.92      71.64      0.9961
+  Comm dyn           S D S       71.64      71.64      1.0000
+  Avail dyn          S S D       71.92      71.64      0.9961
+  Rank + Comm dyn    D D S       71.64      71.64      1.0000
+  Rank + Avail dyn   D S D       71.92      71.64      0.9961
+  Comm + Avail dyn   S D D       71.64      71.64      1.0000
+  Dynamic HEPFT      D D D       71.64      71.64      1.0000
+
+  Best: Static HEPFT = Rank dyn = Comm dyn = Avail dyn = Rank + Comm dyn = Rank + Avail dyn = Comm + Avail dyn = Dynamic HEPFT  (71.64)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             +0.00%
+    Avail dyn            +0.00%
+    Rank + Comm dyn      +0.00%
+    Rank + Avail dyn     +0.00%
+    Comm + Avail dyn     +0.00%
+    Dynamic HEPFT        +0.00%
+
+========================================================================
+  TC2: small dense stable (8 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      153.81     153.74      0.9996
+  Rank dyn           D S S      153.81     153.74      0.9996
+  Comm dyn           S D S      153.44     153.44      1.0000
+  Avail dyn          S S D      153.81     153.74      0.9996
+  Rank + Comm dyn    D D S      153.44     153.44      1.0000
+  Rank + Avail dyn   D S D      153.81     153.74      0.9996
+  Comm + Avail dyn   S D D      153.44     153.44      1.0000
+  Dynamic HEPFT      D D D      153.44     153.44      1.0000
+
+  Best: Comm dyn = Rank + Comm dyn = Comm + Avail dyn = Dynamic HEPFT  (153.44)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             +0.20%
+    Avail dyn            +0.00%
+    Rank + Comm dyn      +0.20%
+    Rank + Avail dyn     +0.00%
+    Comm + Avail dyn     +0.20%
+    Dynamic HEPFT        +0.20%
+
+========================================================================
+  TC3: medium moderate fluctuation (8 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      193.09     287.26      1.4877
+  Rank dyn           D S S      193.09     287.26      1.4877
+  Comm dyn           S D S      225.93     266.27      1.1785
+  Avail dyn          S S D      198.20     287.26      1.4494
+  Rank + Comm dyn    D D S      225.93     266.27      1.1785
+  Rank + Avail dyn   D S D      198.20     287.26      1.4494
+  Comm + Avail dyn   S D D      206.35     206.35      1.0000
+  Dynamic HEPFT      D D D      206.35     206.35      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (206.35)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             +7.31%
+    Avail dyn            +0.00%
+    Rank + Comm dyn      +7.31%
+    Rank + Avail dyn     +0.00%
+    Comm + Avail dyn    +28.17%
+    Dynamic HEPFT       +28.17%
+
+========================================================================
+  TC4: medium fluctuation + failures (8 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      257.81     422.81      1.6400
+  Rank dyn           D S S      257.81     422.81      1.6400
+  Comm dyn           S D S      298.84     376.46      1.2597
+  Avail dyn          S S D      256.60     330.48      1.2879
+  Rank + Comm dyn    D D S      298.84     376.46      1.2597
+  Rank + Avail dyn   D S D      256.60     330.48      1.2879
+  Comm + Avail dyn   S D D      254.73     254.73      1.0000
+  Dynamic HEPFT      D D D      254.73     254.73      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (254.73)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn            +10.96%
+    Avail dyn           +21.84%
+    Rank + Comm dyn     +10.96%
+    Rank + Avail dyn    +21.84%
+    Comm + Avail dyn    +39.75%
+    Dynamic HEPFT       +39.75%
+
+========================================================================
+  TC5: medium high fluctuation (12 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      297.08     368.66      1.2409
+  Rank dyn           D S S      297.08     368.66      1.2409
+  Comm dyn           S D S      321.28     400.94      1.2479
+  Avail dyn          S S D      303.71     424.52      1.3978
+  Rank + Comm dyn    D D S      321.28     400.94      1.2479
+  Rank + Avail dyn   D S D      303.71     424.52      1.3978
+  Comm + Avail dyn   S D D      309.30     309.30      1.0000
+  Dynamic HEPFT      D D D      309.30     309.30      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (309.30)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             -8.75%
+    Avail dyn           -15.15%
+    Rank + Comm dyn      -8.75%
+    Rank + Avail dyn    -15.15%
+    Comm + Avail dyn    +16.10%
+    Dynamic HEPFT       +16.10%
+
+========================================================================
+  TC6: medium correlated failures (12 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      327.97     456.67      1.3924
+  Rank dyn           D S S      327.97     456.67      1.3924
+  Comm dyn           S D S      385.33     559.48      1.4520
+  Avail dyn          S S D      340.81     487.66      1.4309
+  Rank + Comm dyn    D D S      385.33     559.48      1.4520
+  Rank + Avail dyn   D S D      340.81     487.66      1.4309
+  Comm + Avail dyn   S D D      344.38     344.38      1.0000
+  Dynamic HEPFT      D D D      344.38     344.38      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (344.38)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn            -22.51%
+    Avail dyn            -6.79%
+    Rank + Comm dyn     -22.51%
+    Rank + Avail dyn     -6.79%
+    Comm + Avail dyn    +24.59%
+    Dynamic HEPFT       +24.59%
+
+========================================================================
+  TC7: large moderate volatility (12 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      328.94     681.87      2.0729
+  Rank dyn           D S S      328.94     681.87      2.0729
+  Comm dyn           S D S      416.71     687.54      1.6499
+  Avail dyn          S S D      337.93     537.16      1.5896
+  Rank + Comm dyn    D D S      416.71     687.54      1.6499
+  Rank + Avail dyn   D S D      337.93     537.16      1.5896
+  Comm + Avail dyn   S D D      358.22     358.22      1.0000
+  Dynamic HEPFT      D D D      358.22     358.22      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (358.22)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             -0.83%
+    Avail dyn           +21.22%
+    Rank + Comm dyn      -0.83%
+    Rank + Avail dyn    +21.22%
+    Comm + Avail dyn    +47.46%
+    Dynamic HEPFT       +47.46%
+
+========================================================================
+  TC8: large dense high volatility (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      527.80     850.98      1.6123
+  Rank dyn           D S S      527.80     850.98      1.6123
+  Comm dyn           S D S      645.80     869.41      1.3462
+  Avail dyn          S S D      547.75     758.80      1.3853
+  Rank + Comm dyn    D D S      645.80     869.41      1.3462
+  Rank + Avail dyn   D S D      547.75     758.80      1.3853
+  Comm + Avail dyn   S D D      574.08     574.08      1.0000
+  Dynamic HEPFT      D D D      574.08     574.08      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (574.08)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             -2.17%
+    Avail dyn           +10.83%
+    Rank + Comm dyn      -2.17%
+    Rank + Avail dyn    +10.83%
+    Comm + Avail dyn    +32.54%
+    Dynamic HEPFT       +32.54%
+
+========================================================================
+  TC9: large extreme volatility (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      525.66     866.66      1.6487
+  Rank dyn           D S S      525.66     866.66      1.6487
+  Comm dyn           S D S      703.68     911.39      1.2952
+  Avail dyn          S S D      538.83     826.80      1.5344
+  Rank + Comm dyn    D D S      703.68     911.39      1.2952
+  Rank + Avail dyn   D S D      538.83     826.80      1.5344
+  Comm + Avail dyn   S D D      590.71     590.71      1.0000
+  Dynamic HEPFT      D D D      590.72     590.72      1.0000
+
+  Best: Comm + Avail dyn  (590.71)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             -5.16%
+    Avail dyn            +4.60%
+    Rank + Comm dyn      -5.16%
+    Rank + Avail dyn     +4.60%
+    Comm + Avail dyn    +31.84%
+    Dynamic HEPFT       +31.84%
+
+========================================================================
+  TC10: largest dense worst case (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      909.44    1269.19      1.3956
+  Rank dyn           D S S      909.44    1269.19      1.3956
+  Comm dyn           S D S     1160.86    1225.41      1.0556
+  Avail dyn          S S D      945.84    1282.08      1.3555
+  Rank + Comm dyn    D D S     1160.86    1225.41      1.0556
+  Rank + Avail dyn   D S D      945.84    1282.08      1.3555
+  Comm + Avail dyn   S D D     1035.13    1035.13      1.0000
+  Dynamic HEPFT      D D D     1035.13    1035.13      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (1035.13)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             +3.45%
+    Avail dyn            -1.02%
+    Rank + Comm dyn      +3.45%
+    Rank + Avail dyn     -1.02%
+    Comm + Avail dyn    +18.44%
+    Dynamic HEPFT       +18.44%
+
+========================================================================
+  TC11: rapid bandwidth thrash (8 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      143.19     150.95      1.0542
+  Rank dyn           D S S      143.19     150.95      1.0542
+  Comm dyn           S D S      141.24     159.98      1.1327
+  Avail dyn          S S D      147.81     145.31      0.9831
+  Rank + Comm dyn    D D S      141.24     159.98      1.1327
+  Rank + Avail dyn   D S D      147.81     145.31      0.9831
+  Comm + Avail dyn   S D D      140.99     140.99      1.0000
+  Dynamic HEPFT      D D D      140.99     140.99      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (140.99)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             -5.98%
+    Avail dyn            +3.74%
+    Rank + Comm dyn      -5.98%
+    Rank + Avail dyn     +3.74%
+    Comm + Avail dyn     +6.60%
+    Dynamic HEPFT        +6.60%
+
+========================================================================
+  TC12: near-permanent outages (12 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      198.83     379.36      1.9079
+  Rank dyn           D S S      198.83     379.36      1.9079
+  Comm dyn           S D S      279.41     562.61      2.0136
+  Avail dyn          S S D      202.91     501.80      2.4730
+  Rank + Comm dyn    D D S      279.41     562.61      2.0136
+  Rank + Avail dyn   D S D      202.91     501.80      2.4730
+  Comm + Avail dyn   S D D      283.12     283.12      1.0000
+  Dynamic HEPFT      D D D      283.12     283.12      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (283.12)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn            -48.31%
+    Avail dyn           -32.28%
+    Rank + Comm dyn     -48.31%
+    Rank + Avail dyn    -32.28%
+    Comm + Avail dyn    +25.37%
+    Dynamic HEPFT       +25.37%
+
+========================================================================
+  TC13: cascading correlated failures (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      324.05     786.25      2.4263
+  Rank dyn           D S S      322.91     786.11      2.4344
+  Comm dyn           S D S      600.05     880.75      1.4678
+  Avail dyn          S S D      379.99     824.32      2.1693
+  Rank + Comm dyn    D D S      558.03     871.39      1.5616
+  Rank + Avail dyn   D S D      379.99     824.32      2.1693
+  Comm + Avail dyn   S D D      436.95     436.95      1.0000
+  Dynamic HEPFT      D D D      436.95     436.95      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (436.95)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.02%
+    Comm dyn            -12.02%
+    Avail dyn            -4.84%
+    Rank + Comm dyn     -10.83%
+    Rank + Avail dyn     -4.84%
+    Comm + Avail dyn    +44.43%
+    Dynamic HEPFT       +44.43%
+
+========================================================================
+  TC14: extreme bandwidth variance sparse (12 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      159.46     175.79      1.1024
+  Rank dyn           D S S      159.46     175.79      1.1024
+  Comm dyn           S D S      154.16     170.74      1.1075
+  Avail dyn          S S D      156.12     147.44      0.9444
+  Rank + Comm dyn    D D S      154.16     170.74      1.1075
+  Rank + Avail dyn   D S D      156.12     147.44      0.9444
+  Comm + Avail dyn   S D D      145.19     145.19      1.0000
+  Dynamic HEPFT      D D D      145.19     145.19      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (145.19)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             +2.87%
+    Avail dyn           +16.13%
+    Rank + Comm dyn      +2.87%
+    Rank + Avail dyn    +16.13%
+    Comm + Avail dyn    +17.41%
+    Dynamic HEPFT       +17.41%
+
+========================================================================
+  TC15: dense DAG extreme churn (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      628.79     956.07      1.5205
+  Rank dyn           D S S      628.79     956.07      1.5205
+  Comm dyn           S D S      729.92    1053.12      1.4428
+  Avail dyn          S S D      683.18     935.29      1.3690
+  Rank + Comm dyn    D D S      729.92    1053.12      1.4428
+  Rank + Avail dyn   D S D      683.18     935.29      1.3690
+  Comm + Avail dyn   S D D      675.36     675.36      1.0000
+  Dynamic HEPFT      D D D      675.36     675.36      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (675.36)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn            -10.15%
+    Avail dyn            +2.17%
+    Rank + Comm dyn     -10.15%
+    Rank + Avail dyn     +2.17%
+    Comm + Avail dyn    +29.36%
+    Dynamic HEPFT       +29.36%
+
+========================================================================
+  TC16: rolling wave failures (12 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      302.58     428.24      1.4153
+  Rank dyn           D S S      303.91     428.24      1.4091
+  Comm dyn           S D S      313.62     471.63      1.5038
+  Avail dyn          S S D      321.21     442.48      1.3776
+  Rank + Comm dyn    D D S      313.99     462.24      1.4722
+  Rank + Avail dyn   D S D      321.21     442.48      1.3776
+  Comm + Avail dyn   S D D      327.33     327.33      1.0000
+  Dynamic HEPFT      D D D      327.33     327.33      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (327.33)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn            -10.13%
+    Avail dyn            -3.33%
+    Rank + Comm dyn      -7.94%
+    Rank + Avail dyn     -3.33%
+    Comm + Avail dyn    +23.56%
+    Dynamic HEPFT       +23.56%
+
+========================================================================
+  TC17: asymmetric cluster churn (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      464.95     911.05      1.9595
+  Rank dyn           D S S      464.95     911.05      1.9595
+  Comm dyn           S D S      686.89    1021.34      1.4869
+  Avail dyn          S S D      527.16     990.16      1.8783
+  Rank + Comm dyn    D D S      686.89    1021.34      1.4869
+  Rank + Avail dyn   D S D      527.16     990.16      1.8783
+  Comm + Avail dyn   S D D      556.05     556.05      1.0000
+  Dynamic HEPFT      D D D      556.05     556.05      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (556.05)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn            -12.11%
+    Avail dyn            -8.68%
+    Rank + Comm dyn     -12.11%
+    Rank + Avail dyn     -8.68%
+    Comm + Avail dyn    +38.97%
+    Dynamic HEPFT       +38.97%
+
+========================================================================
+  TC18: micro-burst failures sparse (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      434.47     559.63      1.2881
+  Rank dyn           D S S      434.47     559.63      1.2881
+  Comm dyn           S D S      419.22     561.80      1.3401
+  Avail dyn          S S D      453.86     488.76      1.0769
+  Rank + Comm dyn    D D S      419.22     561.80      1.3401
+  Rank + Avail dyn   D S D      454.33     490.37      1.0793
+  Comm + Avail dyn   S D D      436.90     436.90      1.0000
+  Dynamic HEPFT      D D D      436.90     436.90      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (436.90)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn             -0.39%
+    Avail dyn           +12.66%
+    Rank + Comm dyn      -0.39%
+    Rank + Avail dyn    +12.38%
+    Comm + Avail dyn    +21.93%
+    Dynamic HEPFT       +21.93%
+
+========================================================================
+  TC19: maximum procs catastrophic churn (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      895.10    1443.11      1.6122
+  Rank dyn           D S S      898.21    1446.22      1.6101
+  Comm dyn           S D S     1313.09    1594.95      1.2147
+  Avail dyn          S S D     1064.77    1655.33      1.5546
+  Rank + Comm dyn    D D S     1316.19    1598.06      1.2142
+  Rank + Avail dyn   D S D     1064.77    1650.49      1.5501
+  Comm + Avail dyn   S D D     1139.75    1139.75      1.0000
+  Dynamic HEPFT      D D D     1142.97    1142.97      1.0000
+
+  Best: Comm + Avail dyn  (1139.75)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             -0.22%
+    Comm dyn            -10.52%
+    Avail dyn           -14.71%
+    Rank + Comm dyn     -10.74%
+    Rank + Avail dyn    -14.37%
+    Comm + Avail dyn    +21.02%
+    Dynamic HEPFT       +20.80%
+
+========================================================================
+  TC20: worst-case everything (16 procs)
+========================================================================
+
+  Configuration      R C A     Planned  Simulated  Robustness
+  -----------------------------------------------------------
+  Static HEPFT       S S S      949.22    1585.57      1.6704
+  Rank dyn           D S S      949.22    1585.57      1.6704
+  Comm dyn           S D S     1452.93    1750.46      1.2048
+  Avail dyn          S S D     1299.93    1900.82      1.4622
+  Rank + Comm dyn    D D S     1452.93    1750.46      1.2048
+  Rank + Avail dyn   D S D     1299.93    1900.82      1.4622
+  Comm + Avail dyn   S D D     1442.74    1442.74      1.0000
+  Dynamic HEPFT      D D D     1442.74    1442.74      1.0000
+
+  Best: Comm + Avail dyn = Dynamic HEPFT  (1442.74)
+
+  Improvement over static HEPFT (simulated makespan):
+    Rank dyn             +0.00%
+    Comm dyn            -10.40%
+    Avail dyn           -19.88%
+    Rank + Comm dyn     -10.40%
+    Rank + Avail dyn    -19.88%
+    Comm + Avail dyn     +9.01%
+    Dynamic HEPFT        +9.01%

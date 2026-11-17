@@ -2,7 +2,8 @@
 """
 Building blocks for the HEPFT scheduler (hepft.py puts them together).
 
-Every function in Parts 1 and 2 takes an `is_dynamic` flag:
+Every function in Parts 1 and 2 except fit_in_gap (which works the same in
+both modes) takes an `is_dynamic` flag:
   is_dynamic=True   dynamic HEPFT: plans around the changing network in
                     `dynamic_net` (required)
   is_dynamic=False  static HEPFT, which behaves like HEFT: only needs what
@@ -21,11 +22,11 @@ Every function in Parts 1 and 2 takes an `is_dynamic` flag:
       earliest_slot        earliest usable start on one processor
       choose_processor     pick the processor that finishes the task first
 
+  SchedulingError          raised when a task can never be placed
+
 Processor schedules are INSERTION-BASED, as in canonical HEFT: a task can go
 into an idle gap between tasks already placed on a processor, not only after
 the last one.
-
-  SchedulingError          raised when a task can never be placed
 """
 from __future__ import annotations
 
