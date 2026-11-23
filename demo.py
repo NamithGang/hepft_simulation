@@ -24,16 +24,32 @@ def generate_random_dag(n: int, p: float, seed: int = 42) -> nx.DiGraph:
 
 
 def create_dag(n: int = 10, p: float = 0.3, seed: int = 42,
-               num_processors: int = 3) -> TaskDAG:
+               network: NetworkGraph = None) -> TaskDAG:
+    """
+    Random task DAG whose run times come from the processors' speeds.
+
+    Cost model (all heterogeneity comes from processor speed):
+      work[t]          amount of work in task t, in work units (random 1-10)
+      speed[p]         processor p's speed, in work units per time unit
+                       (set by create_network)
+      run time[t][p] = work[t] / speed[p]
+
+    So a faster processor always runs every task faster, and every task
+    ranks the processors in the same order. Edge weights (1-5) are the
+    amount of data sent from parent to child, in data units; transfer time
+    = data / link bandwidth.
+    """
+    if network is None:
+        raise ValueError("create_dag needs the network, to read its processor speeds")
+
     G = generate_random_dag(n, p, seed)
     dag = TaskDAG()
-    rng = random.Random(seed)
 
     for node_id, data in G.nodes(data=True):
-        base_cost = data['weight']
+        work = data['weight']
         comp_costs = {
-            proc: round(base_cost * rng.uniform(0.5, 1.5), 2)
-            for proc in range(num_processors)
+            proc_id: round(work / proc.speed, 2)
+            for proc_id, proc in network.processors.items()
         }
         dag.nodes[node_id] = Task(node_id, comp_costs)
 
@@ -54,7 +70,10 @@ def create_network(num_processors: int = 8) -> NetworkGraph:
     Processors are split into two clusters:
       cluster A: procs 0 .. half-1       (faster, speed 1.2-1.8)
       cluster B: procs half .. n-1       (slower, speed 0.6-1.0)
-    Intra-cluster bandwidth is higher than inter-cluster bandwidth.
+    Speed is in work units per time unit; create_dag turns it into run
+    times (run time = work / speed).
+    Intra-cluster bandwidth (3.0-6.0) is higher than inter-cluster
+    bandwidth (0.5-1.5), in data units per time unit.
     Uses a fixed seed of 0 so the same call always produces the same network.
     """
     rng = random.Random(0)
@@ -224,7 +243,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=8)
     cases.append({
         "name": "TC1: small sparse stable (8 procs)",
-        "dag": create_dag(n=50, p=0.2, seed=1, num_processors=8),
+        "dag": create_dag(n=50, p=0.2, seed=1, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=1,
@@ -242,7 +261,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=8)
     cases.append({
         "name": "TC2: small dense stable (8 procs)",
-        "dag": create_dag(n=50, p=0.6, seed=2, num_processors=8),
+        "dag": create_dag(n=50, p=0.6, seed=2, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=2,
@@ -260,7 +279,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=8)
     cases.append({
         "name": "TC3: medium moderate fluctuation (8 procs)",
-        "dag": create_dag(n=100, p=0.3, seed=3, num_processors=8),
+        "dag": create_dag(n=100, p=0.3, seed=3, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=3,
@@ -278,7 +297,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=8)
     cases.append({
         "name": "TC4: medium fluctuation + failures (8 procs)",
-        "dag": create_dag(n=100, p=0.4, seed=4, num_processors=8),
+        "dag": create_dag(n=100, p=0.4, seed=4, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=4,
@@ -296,7 +315,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=12)
     cases.append({
         "name": "TC5: medium high fluctuation (12 procs)",
-        "dag": create_dag(n=150, p=0.3, seed=5, num_processors=12),
+        "dag": create_dag(n=150, p=0.3, seed=5, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=5,
@@ -314,7 +333,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=12)
     cases.append({
         "name": "TC6: medium correlated failures (12 procs)",
-        "dag": create_dag(n=150, p=0.4, seed=6, num_processors=12),
+        "dag": create_dag(n=150, p=0.4, seed=6, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=6,
@@ -333,7 +352,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=12)
     cases.append({
         "name": "TC7: large moderate volatility (12 procs)",
-        "dag": create_dag(n=250, p=0.2, seed=7, num_processors=12),
+        "dag": create_dag(n=250, p=0.2, seed=7, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=7,
@@ -352,7 +371,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC8: large dense high volatility (16 procs)",
-        "dag": create_dag(n=300, p=0.3, seed=8, num_processors=16),
+        "dag": create_dag(n=300, p=0.3, seed=8, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=8,
@@ -371,7 +390,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC9: large extreme volatility (16 procs)",
-        "dag": create_dag(n=400, p=0.2, seed=9, num_processors=16),
+        "dag": create_dag(n=400, p=0.2, seed=9, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=9,
@@ -390,7 +409,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC10: largest dense worst case (16 procs)",
-        "dag": create_dag(n=500, p=0.3, seed=10, num_processors=16),
+        "dag": create_dag(n=500, p=0.3, seed=10, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=10,
@@ -409,7 +428,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=8)
     cases.append({
         "name": "TC11: rapid bandwidth thrash (8 procs)",
-        "dag": create_dag(n=80, p=0.3, seed=11, num_processors=8),
+        "dag": create_dag(n=80, p=0.3, seed=11, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=11,
@@ -427,7 +446,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=12)
     cases.append({
         "name": "TC12: near-permanent outages (12 procs)",
-        "dag": create_dag(n=120, p=0.25, seed=12, num_processors=12),
+        "dag": create_dag(n=120, p=0.25, seed=12, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=12,
@@ -445,7 +464,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC13: cascading correlated failures (16 procs)",
-        "dag": create_dag(n=200, p=0.3, seed=13, num_processors=16),
+        "dag": create_dag(n=200, p=0.3, seed=13, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=13,
@@ -464,7 +483,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=12)
     cases.append({
         "name": "TC14: extreme bandwidth variance sparse (12 procs)",
-        "dag": create_dag(n=150, p=0.15, seed=14, num_processors=12),
+        "dag": create_dag(n=150, p=0.15, seed=14, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=14,
@@ -482,7 +501,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC15: dense DAG extreme churn (16 procs)",
-        "dag": create_dag(n=250, p=0.5, seed=15, num_processors=16),
+        "dag": create_dag(n=250, p=0.5, seed=15, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=15,
@@ -501,7 +520,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=12)
     cases.append({
         "name": "TC16: rolling wave failures (12 procs)",
-        "dag": create_dag(n=180, p=0.3, seed=16, num_processors=12),
+        "dag": create_dag(n=180, p=0.3, seed=16, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=16,
@@ -520,7 +539,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC17: asymmetric cluster churn (16 procs)",
-        "dag": create_dag(n=300, p=0.25, seed=17, num_processors=16),
+        "dag": create_dag(n=300, p=0.25, seed=17, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=17,
@@ -539,7 +558,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC18: micro-burst failures sparse (16 procs)",
-        "dag": create_dag(n=400, p=0.15, seed=18, num_processors=16),
+        "dag": create_dag(n=400, p=0.15, seed=18, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=18,
@@ -558,7 +577,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC19: maximum procs catastrophic churn (16 procs)",
-        "dag": create_dag(n=450, p=0.35, seed=19, num_processors=16),
+        "dag": create_dag(n=450, p=0.35, seed=19, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=19,
@@ -577,7 +596,7 @@ def get_test_cases() -> list[dict]:
     _net = create_network(num_processors=16)
     cases.append({
         "name": "TC20: worst-case everything (16 procs)",
-        "dag": create_dag(n=500, p=0.4, seed=20, num_processors=16),
+        "dag": create_dag(n=500, p=0.4, seed=20, network=_net),
         "network": _net,
         "dynamic_network": WorkflowSimNetwork(
             _net, seed=20,
