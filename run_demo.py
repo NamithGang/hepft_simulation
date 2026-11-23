@@ -174,8 +174,7 @@ def simulate_on_dynamic(dag, dynamic_net, schedule, reasons=None):
 def _makespan(schedule: dict) -> float:
     if not schedule:
         return float('inf')
-    return (max(v[2] for v in schedule.values())
-            - min(v[1] for v in schedule.values()))
+    return max(v[2] for v in schedule.values())
 
 
 # ── auxiliary metrics ───────────────────────────────────────────────────────
